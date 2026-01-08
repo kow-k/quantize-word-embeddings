@@ -13,8 +13,8 @@ terms-source-temporary/
 # files to ignore
 *.c
 ## folders
-__pycache__/*
-.DS_Store/*
+__pycache__
+.DS_Store
 
 ## files
 *.DS_Store
@@ -29,7 +29,7 @@ __pycache__/*
 !DOCUMENTATION_SUMMARY.md
 !EXAMPLES.md
 !INSTALLATION.md
-LICENSE
+!LICENSE
 !README.md
 *.md.html
 *.so
