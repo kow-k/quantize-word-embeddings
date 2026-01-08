@@ -1,23 +1,18 @@
 # folders to ignore
+.DS_Store/
 .ipynb_checkpoints/
 .vscode/settings.json
 __pycache__/
 build/
 saves/
-terms-source-temporary/
+extra/
+
 # but include
-!saves/hd-df-sampled-2024-01-05-14.p
-!saves/hd-df-sampled-2024-01-08-18.p
-!saves/mixed-terms-filtered-2024-01-03-15.p
-!saves/mixed-terms-filtered-2024-01-05-12.p
+
 # files to ignore
 *.c
-## folders
-__pycache__
-.DS_Store
 
 ## files
-*.DS_Store
 *.csv
 *.txt
 !requirements-dev.txt
