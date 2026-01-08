@@ -32,8 +32,8 @@ This repository implements the quantization methods from our research paper demo
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/embedding-quantization.git
-cd embedding-quantization
+git clone https://github.com/kow-k/quantaize-word-embeddings.git
+cd quantize-word-embeddings
 
 # Install dependencies
 pip install numpy scipy scikit-learn matplotlib
@@ -79,8 +79,8 @@ python evaluate_quantization.py embeddings.vec --base-k 32 --use-lebesgue
 
 This implementation is based on our research paper:
 
-**"Quantization solves a wavy puzzle in word embeddings (with practical benefits)"**  
-*Kow Kuroda*  
+**"Quantization solves a wavy puzzle in word embeddings (with practical benefits)"**
+*Kow Kuroda*
 NLP2026 (in submission)
 
 **Key findings:**
@@ -155,7 +155,7 @@ viz.plot_dimension_types(quantizer, save_path='dimension_types.png')
 
 # Before/after comparison
 viz.plot_before_after_distributions(
-    embeddings, quantized, 
+    embeddings, quantized,
     save_path='before_after.png'
 )
 ```
@@ -244,7 +244,7 @@ the 0.418 0.24968 -0.41242 ...
 . 0.15164 0.30177 -0.16763 ...
 ```
 
-**First line**: `<vocabulary_size> <dimensions>`  
+**First line**: `<vocabulary_size> <dimensions>`
 **Subsequent lines**: `<word> <value1> <value2> ...`
 
 ## 🤝 Contributing
@@ -284,8 +284,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-**Kow Kuroda**  
-Kyorin University Medical School  
+**Kow Kuroda**
+Kyorin University Medical School
 Email: kow.k@ks.kyorin-u.ac.jp
 
 ## 🙏 Acknowledgments
