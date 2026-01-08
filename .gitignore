@@ -1,0 +1,32 @@
+# folders to ignore
+.ipynb_checkpoints/
+.vscode/settings.json
+__pycache__/
+build/
+saves/
+terms-source-temporary/
+# but include
+!saves/hd-df-sampled-2024-01-05-14.p
+!saves/hd-df-sampled-2024-01-08-18.p
+!saves/mixed-terms-filtered-2024-01-03-15.p
+!saves/mixed-terms-filtered-2024-01-05-12.p
+# files to ignore
+*.c
+__pycache__/*
+*.DS_Store
+.DS_Store/*
+*.csv
+*.txt
+*.md
+!README.md
+*.md.html
+*.so
+
+## ignore .ipynb
+*.ipynb
+
+## ignore .py
+*.py
+!adaptive_quantization.py
+!evaluate_quantization.py
+!visualize_quantization.py
