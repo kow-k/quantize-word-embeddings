@@ -20,8 +20,16 @@ __pycache__/*
 *.DS_Store
 *.csv
 *.txt
+!requirements-dev.txt
+!requirements.txt
 *.html
 *.md
+!API_REFERENCE.md
+!CONTRIBUTING.md
+!DOCUMENTATION_SUMMARY.md
+!EXAMPLES.md
+!INSTALLATION.md
+LICENSE
 !README.md
 *.md.html
 *.so

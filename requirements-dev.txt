@@ -1,0 +1,25 @@
+# Development dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Testing
+pytest>=6.0.0
+pytest-cov>=2.10.0
+pytest-xdist>=2.2.0  # Parallel testing
+
+# Code quality
+black>=21.0
+flake8>=3.9.0
+mypy>=0.910
+isort>=5.9.0
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=0.5.0
+
+# Notebook support (optional)
+jupyter>=1.0.0
+ipython>=7.20.0
+
+# Additional tools
+pandas>=1.2.0  # For data analysis
+tqdm>=4.60.0   # Progress bars
