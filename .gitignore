@@ -8,6 +8,8 @@ saves/
 extra/
 
 # but include
+!effects
+!results
 
 # files to ignore
 *.c
