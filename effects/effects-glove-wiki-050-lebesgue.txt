@@ -1,0 +1,1146 @@
+$ python evaluate_quantization.py --use-lebesgue --base-k 8 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 8 (precision: ~0.2500 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=8)
+--------------------------------------------------------------------------------
+
+Uniform k=8:
+  STS correlation:  0.4796
+  SICK correlation: 0.7903
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  8.0
+  Mean |skewness|:  0.156
+  Mean kurtosis:    0.389
+  Storage size:     7.2 MB
+  Bits per value:   3.00
+  Compression:      10.7×
+
+3. ADAPTIVE QUANTIZATION (base_k=8)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=8)
+  Dim 20: other (k=8)
+  Dim 40: other (k=8)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 8 unique values (uniform)
+  Dim 20: 199992 → 8 unique values (uniform)
+  Dim 40: 200030 → 8 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [8, 12]
+  Mean: 8.2
+  Median: 8.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.4896
+  SICK correlation: 0.7640
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  8.2
+  Mean |skewness|:  0.154
+  Mean kurtosis:    0.348
+  Storage size:     7.2 MB
+  Bits per value:   3.00
+  Compression:      10.7×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.4796     0.7903     33.33%        7.2      10.7×
+Adaptive                 0.4896     0.7640     33.33%        7.2      10.7×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -24.4%  SICK: -3.1%  Size: -91% (10.7× compression)
+  Adaptive   - STS: -22.8%  SICK: -6.3%  Size: -91% (10.7× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 10 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 10 (precision: ~0.2000 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=10)
+--------------------------------------------------------------------------------
+
+Uniform k=10:
+  STS correlation:  0.4744
+  SICK correlation: 0.8178
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  10.0
+  Mean |skewness|:  0.114
+  Mean kurtosis:    0.478
+  Storage size:     7.9 MB
+  Bits per value:   3.32
+  Compression:      9.6×
+
+3. ADAPTIVE QUANTIZATION (base_k=10)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=10)
+  Dim 20: other (k=10)
+  Dim 40: other (k=10)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 10 unique values (uniform)
+  Dim 20: 199992 → 10 unique values (uniform)
+  Dim 40: 200030 → 10 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [10, 15]
+  Mean: 10.2
+  Median: 10.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5274
+  SICK correlation: 0.7722
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  10.2
+  Mean |skewness|:  0.110
+  Mean kurtosis:    0.427
+  Storage size:     7.9 MB
+  Bits per value:   3.32
+  Compression:      9.6×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.4744     0.8178     33.33%        7.9       9.6×
+Adaptive                 0.5274     0.7722     33.33%        7.9       9.6×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -25.2%  SICK: +0.3%  Size: -90% (9.6× compression)
+  Adaptive   - STS: -16.8%  SICK: -5.3%  Size: -90% (9.6× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 16 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 16 (precision: ~0.1250 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=16)
+--------------------------------------------------------------------------------
+
+Uniform k=16:
+  STS correlation:  0.6178
+  SICK correlation: 0.8200
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  15.9
+  Mean |skewness|:  0.131
+  Mean kurtosis:    0.609
+  Storage size:     9.3 MB
+  Bits per value:   3.91
+  Compression:      8.2×
+
+3. ADAPTIVE QUANTIZATION (base_k=16)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=16)
+  Dim 20: other (k=16)
+  Dim 40: other (k=16)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 15 unique values (uniform)
+  Dim 20: 199992 → 16 unique values (uniform)
+  Dim 40: 200030 → 15 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [16, 24]
+  Mean: 16.3
+  Median: 16.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6405
+  SICK correlation: 0.8258
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  16.2
+  Mean |skewness|:  0.127
+  Mean kurtosis:    0.566
+  Storage size:     9.5 MB
+  Bits per value:   4.00
+  Compression:      8.0×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6178     0.8200     33.33%        9.3       8.2×
+Adaptive                 0.6405     0.8258     33.33%        9.5       8.0×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -2.6%  SICK: +0.6%  Size: -88% (8.2× compression)
+  Adaptive   - STS: +1.0%  SICK: +1.3%  Size: -88% (8.0× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 20 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 20 (precision: ~0.1000 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=20)
+--------------------------------------------------------------------------------
+
+Uniform k=20:
+  STS correlation:  0.6293
+  SICK correlation: 0.8271
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  19.6
+  Mean |skewness|:  0.136
+  Mean kurtosis:    0.638
+  Storage size:     10.1 MB
+  Bits per value:   4.25
+  Compression:      7.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=20)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=20)
+  Dim 20: other (k=20)
+  Dim 40: other (k=20)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 19 unique values (uniform)
+  Dim 20: 199992 → 20 unique values (uniform)
+  Dim 40: 200030 → 19 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [20, 30]
+  Mean: 20.4
+  Median: 20.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6585
+  SICK correlation: 0.8231
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  20.0
+  Mean |skewness|:  0.131
+  Mean kurtosis:    0.600
+  Storage size:     10.3 MB
+  Bits per value:   4.32
+  Compression:      7.4×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6293     0.8271     33.33%       10.1       7.5×
+Adaptive                 0.6585     0.8231     33.33%       10.3       7.4×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -0.8%  SICK: +1.4%  Size: -87% (7.5× compression)
+  Adaptive   - STS: +3.8%  SICK: +1.0%  Size: -87% (7.4× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 25 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 25 (precision: ~0.0800 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=25)
+--------------------------------------------------------------------------------
+
+Uniform k=25:
+  STS correlation:  0.5997
+  SICK correlation: 0.8216
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  24.3
+  Mean |skewness|:  0.138
+  Mean kurtosis:    0.658
+  Storage size:     10.9 MB
+  Bits per value:   4.58
+  Compression:      7.0×
+
+3. ADAPTIVE QUANTIZATION (base_k=25)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=25)
+  Dim 20: other (k=25)
+  Dim 40: other (k=25)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 23 unique values (uniform)
+  Dim 20: 199992 → 25 unique values (uniform)
+  Dim 40: 200030 → 23 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  47 ( 94.0%)
+  gaussian            :   1 (  2.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [25, 37]
+  Mean: 25.5
+  Median: 25.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6170
+  SICK correlation: 0.8184
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  24.8
+  Mean |skewness|:  0.134
+  Mean kurtosis:    0.624
+  Storage size:     10.9 MB
+  Bits per value:   4.58
+  Compression:      7.0×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.5997     0.8216     33.33%       10.9       7.0×
+Adaptive                 0.6170     0.8184     33.33%       10.9       7.0×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -5.4%  SICK: +0.8%  Size: -86% (7.0× compression)
+  Adaptive   - STS: -2.7%  SICK: +0.4%  Size: -86% (7.0× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 32 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 32 (precision: ~0.0625 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=32)
+--------------------------------------------------------------------------------
+
+Uniform k=32:
+  STS correlation:  0.6377
+  SICK correlation: 0.8188
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  30.7
+  Mean |skewness|:  0.140
+  Mean kurtosis:    0.672
+  Storage size:     11.7 MB
+  Bits per value:   4.91
+  Compression:      6.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=32)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=32)
+  Dim 20: other (k=32)
+  Dim 40: other (k=32)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 29 unique values (uniform)
+  Dim 20: 199992 → 32 unique values (uniform)
+  Dim 40: 200030 → 30 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [32, 48]
+  Mean: 32.6
+  Median: 32.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6588
+  SICK correlation: 0.8140
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  31.4
+  Mean |skewness|:  0.137
+  Mean kurtosis:    0.643
+  Storage size:     11.8 MB
+  Bits per value:   4.95
+  Compression:      6.5×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6377     0.8188     33.33%       11.7       6.5×
+Adaptive                 0.6588     0.8140     33.33%       11.8       6.5×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.6%  SICK: +0.4%  Size: -85% (6.5× compression)
+  Adaptive   - STS: +3.9%  SICK: -0.2%  Size: -85% (6.5× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 33 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 33 (precision: ~0.0606 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=33)
+--------------------------------------------------------------------------------
+
+Uniform k=33:
+  STS correlation:  0.6455
+  SICK correlation: 0.8082
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  31.6
+  Mean |skewness|:  0.140
+  Mean kurtosis:    0.673
+  Storage size:     11.8 MB
+  Bits per value:   4.95
+  Compression:      6.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=33)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=33)
+  Dim 20: other (k=33)
+  Dim 40: other (k=33)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 29 unique values (uniform)
+  Dim 20: 199992 → 33 unique values (uniform)
+  Dim 40: 200030 → 30 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  47 ( 94.0%)
+  gaussian            :   1 (  2.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [33, 49]
+  Mean: 33.6
+  Median: 33.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6604
+  SICK correlation: 0.7930
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  32.2
+  Mean |skewness|:  0.137
+  Mean kurtosis:    0.645
+  Storage size:     11.9 MB
+  Bits per value:   5.00
+  Compression:      6.4×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6455     0.8082     33.33%       11.8       6.5×
+Adaptive                 0.6604     0.7930     33.33%       11.9       6.4×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +1.8%  SICK: -0.9%  Size: -85% (6.5× compression)
+  Adaptive   - STS: +4.1%  SICK: -2.7%  Size: -85% (6.4× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 50 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 50 (precision: ~0.0400 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=50)
+--------------------------------------------------------------------------------
+
+Uniform k=50:
+  STS correlation:  0.6093
+  SICK correlation: 0.8194
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  46.8
+  Mean |skewness|:  0.142
+  Mean kurtosis:    0.684
+  Storage size:     13.2 MB
+  Bits per value:   5.52
+  Compression:      5.8×
+
+3. ADAPTIVE QUANTIZATION (base_k=50)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=50)
+  Dim 20: other (k=50)
+  Dim 40: other (k=50)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 43 unique values (uniform)
+  Dim 20: 199992 → 47 unique values (uniform)
+  Dim 40: 200030 → 46 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [50, 75]
+  Mean: 51.0
+  Median: 50.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6353
+  SICK correlation: 0.8280
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  47.8
+  Mean |skewness|:  0.139
+  Mean kurtosis:    0.663
+  Storage size:     13.3 MB
+  Bits per value:   5.55
+  Compression:      5.8×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6093     0.8194     33.33%       13.2       5.8×
+Adaptive                 0.6353     0.8280     33.33%       13.3       5.8×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -3.9%  SICK: +0.5%  Size: -83% (5.8× compression)
+  Adaptive   - STS: +0.2%  SICK: +1.6%  Size: -83% (5.8× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 64 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 64 (precision: ~0.0312 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=64)
+--------------------------------------------------------------------------------
+
+Uniform k=64:
+  STS correlation:  0.6419
+  SICK correlation: 0.8180
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  58.7
+  Mean |skewness|:  0.142
+  Mean kurtosis:    0.688
+  Storage size:     14.0 MB
+  Bits per value:   5.86
+  Compression:      5.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=64)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=64)
+  Dim 20: other (k=64)
+  Dim 40: other (k=64)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 54 unique values (uniform)
+  Dim 20: 199992 → 61 unique values (uniform)
+  Dim 40: 200030 → 57 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  47 ( 94.0%)
+  gaussian            :   1 (  2.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [64, 96]
+  Mean: 65.3
+  Median: 64.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6583
+  SICK correlation: 0.8257
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  60.0
+  Mean |skewness|:  0.140
+  Mean kurtosis:    0.671
+  Storage size:     14.1 MB
+  Bits per value:   5.91
+  Compression:      5.4×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6419     0.8180     33.33%       14.0       5.5×
+Adaptive                 0.6583     0.8257     33.33%       14.1       5.4×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +1.2%  SICK: +0.3%  Size: -82% (5.5× compression)
+  Adaptive   - STS: +3.8%  SICK: +1.3%  Size: -82% (5.4× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 100 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 100 (precision: ~0.0200 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=100)
+--------------------------------------------------------------------------------
+
+Uniform k=100:
+  STS correlation:  0.6346
+  SICK correlation: 0.8241
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  88.9
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.691
+  Storage size:     15.4 MB
+  Bits per value:   6.46
+  Compression:      4.9×
+
+3. ADAPTIVE QUANTIZATION (base_k=100)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=100)
+  Dim 20: other (k=100)
+  Dim 40: other (k=100)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 83 unique values (uniform)
+  Dim 20: 199992 → 92 unique values (uniform)
+  Dim 40: 200030 → 87 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [100, 150]
+  Mean: 102.0
+  Median: 100.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6353
+  SICK correlation: 0.8303
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  91.1
+  Mean |skewness|:  0.141
+  Mean kurtosis:    0.678
+  Storage size:     15.5 MB
+  Bits per value:   6.51
+  Compression:      4.9×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6346     0.8241     33.33%       15.4       4.9×
+Adaptive                 0.6353     0.8303     33.33%       15.5       4.9×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.1%  SICK: +1.1%  Size: -81% (4.9× compression)
+  Adaptive   - STS: +0.2%  SICK: +1.8%  Size: -80% (4.9× compression)
+================================================================================
+
+$ python evaluate_quantization.py --use-lebesgue --base-k 128 models-open/glove-wiki-gigaword-50.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 128 (precision: ~0.0156 per step)
+Mode: Lebesgue/equi-depth for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-50.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-50.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.6342
+  SICK correlation: 0.8153
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  197036.3
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.693
+  Storage size:     79.5 MB
+  Bits per value:   17.59
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=128)
+--------------------------------------------------------------------------------
+
+Uniform k=128:
+  STS correlation:  0.6352
+  SICK correlation: 0.8174
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  111.6
+  Mean |skewness|:  0.143
+  Mean kurtosis:    0.692
+  Storage size:     16.2 MB
+  Bits per value:   6.79
+  Compression:      4.7×
+
+3. ADAPTIVE QUANTIZATION (base_k=128)
+--------------------------------------------------------------------------------
+Analyzing 50 dimensions...
+  Dim 0: other (k=128)
+  Dim 20: other (k=128)
+  Dim 40: other (k=128)
+
+Quantizing 50 dimensions adaptively...
+  Dim 0: 199734 → 101 unique values (uniform)
+  Dim 20: 199992 → 114 unique values (uniform)
+  Dim 40: 200030 → 110 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 50
+
+Distribution types:
+  other               :  48 ( 96.0%)
+  left_skewed         :   1 (  2.0%)
+  right_skewed        :   1 (  2.0%)
+
+Quantization methods:
+  uniform             :  48 ( 96.0%)
+  lebesgue            :   2 (  4.0%)
+
+Quantization levels (k):
+  Range: [128, 192]
+  Mean: 130.6
+  Median: 128.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6431
+  SICK correlation: 0.8167
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  114.5
+  Mean |skewness|:  0.142
+  Mean kurtosis:    0.682
+  Storage size:     16.3 MB
+  Bits per value:   6.83
+  Compression:      4.7×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-50.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.6342     0.8153     33.33%       79.5       1.0×
+Uniform                  0.6352     0.8174     33.33%       16.2       4.7×
+Adaptive                 0.6431     0.8167     33.33%       16.3       4.7×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.2%  SICK: +0.3%  Size: -80% (4.7× compression)
+  Adaptive   - STS: +1.4%  SICK: +0.2%  Size: -79% (4.7× compression)
+================================================================================

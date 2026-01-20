@@ -1,36 +1,43 @@
-# folders to ignore
-.DS_Store/
+# OS files
+.DS_Store
+*.DS_Store
+
+# IDE/Editor
 .ipynb_checkpoints/
 .vscode/settings.json
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build artifacts
 build/
+dist/
+*.egg-info/
+*.so
+*.c
+
+# Project-specific folders to ignore
 saves/
 extra/
 
-# but include
-
-# files to ignore
-*.c
-*.DS_Store
-
-## files
-*.csv
-*.txt
-!requirements-dev.txt
-!requirements.txt
-*.html
-*.md
-!LICENSE
-!README.md
-*.md.html
-*.so
-
-## ignore .ipynb
+# Notebooks (if you want to ignore them)
 *.ipynb
 
-## ignore .py
-*.py
-!adaptive_quantization.py
-!evaluate_quantization.py
-!visualize_quantization.py
-.DS_Store
+# Data files (if you want to ignore them)
+# Uncomment if needed:
+# *.csv
+# *.txt
+
+# HTML outputs
+*.html
+*.md.html
+
+# BUT explicitly track these important files:
+!README.md
+!LICENSE
+!requirements.txt
+!requirements-dev.txt

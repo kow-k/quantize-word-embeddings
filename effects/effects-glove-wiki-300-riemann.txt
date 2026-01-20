@@ -1,0 +1,1289 @@
+$ python evaluate_quantization.py --base-k 15 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 15 (precision: ~0.1333 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=15)
+--------------------------------------------------------------------------------
+
+Uniform k=15:
+  STS correlation:  0.5856
+  SICK correlation: 0.7856
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  14.8
+  Mean |skewness|:  0.071
+  Mean kurtosis:    0.342
+  Storage size:     54.5 MB
+  Bits per value:   3.81
+  Compression:      8.4×
+
+3. ADAPTIVE QUANTIZATION (base_k=15)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=15)
+  Dim 20: other (k=15)
+  Dim 40: other (k=15)
+  Dim 60: other (k=15)
+  Dim 80: gaussian (k=15)
+  Dim 100: other (k=15)
+  Dim 120: other (k=15)
+  Dim 140: other (k=15)
+  Dim 160: other (k=15)
+  Dim 180: other (k=15)
+  Dim 200: right_skewed (k=22)
+  Dim 220: other (k=15)
+  Dim 240: other (k=15)
+  Dim 260: other (k=15)
+  Dim 280: other (k=15)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 15 unique values (uniform)
+  Dim 20: 192534 → 15 unique values (uniform)
+  Dim 40: 192983 → 15 unique values (uniform)
+  Dim 60: 190323 → 15 unique values (uniform)
+  Dim 80: 193096 → 15 unique values (uniform)
+  Dim 100: 190599 → 15 unique values (uniform)
+  Dim 120: 191705 → 15 unique values (uniform)
+  Dim 140: 191157 → 15 unique values (uniform)
+  Dim 160: 185466 → 15 unique values (uniform)
+  Dim 180: 190452 → 15 unique values (uniform)
+  Dim 200: 139012 → 22 unique values (percentile)
+  Dim 220: 177478 → 15 unique values (uniform)
+  Dim 240: 190249 → 15 unique values (uniform)
+  Dim 260: 190238 → 14 unique values (uniform)
+  Dim 280: 186709 → 15 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 266 ( 88.7%)
+  left_skewed         :   3 (  1.0%)
+  gaussian            :  30 ( 10.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [15, 22]
+  Mean: 15.1
+  Median: 15.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5365
+  SICK correlation: 0.7830
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  14.9
+  Mean |skewness|:  0.079
+  Mean kurtosis:    0.453
+  Storage size:     54.5 MB
+  Bits per value:   3.81
+  Compression:      8.4×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5856     0.7856     33.33%       54.5       8.4×
+Adaptive                 0.5365     0.7830     33.33%       54.5       8.4×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.5%  SICK: -0.2%  Size: -88% (8.4× compression)
+  Adaptive   - STS: -7.9%  SICK: -0.5%  Size: -88% (8.4× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 16 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 16 (precision: ~0.1250 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=16)
+--------------------------------------------------------------------------------
+
+Uniform k=16:
+  STS correlation:  0.5681
+  SICK correlation: 0.7874
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  15.8
+  Mean |skewness|:  0.072
+  Mean kurtosis:    0.347
+  Storage size:     55.9 MB
+  Bits per value:   3.91
+  Compression:      8.2×
+
+3. ADAPTIVE QUANTIZATION (base_k=16)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=16)
+  Dim 20: gaussian (k=16)
+  Dim 40: other (k=16)
+  Dim 60: other (k=16)
+  Dim 80: other (k=16)
+  Dim 100: other (k=16)
+  Dim 120: other (k=16)
+  Dim 140: other (k=16)
+  Dim 160: gaussian (k=16)
+  Dim 180: other (k=16)
+  Dim 200: right_skewed (k=24)
+  Dim 220: other (k=16)
+  Dim 240: other (k=16)
+  Dim 260: other (k=16)
+  Dim 280: other (k=16)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 16 unique values (uniform)
+  Dim 20: 192534 → 16 unique values (uniform)
+  Dim 40: 192983 → 16 unique values (uniform)
+  Dim 60: 190323 → 16 unique values (uniform)
+  Dim 80: 193096 → 16 unique values (uniform)
+  Dim 100: 190599 → 16 unique values (uniform)
+  Dim 120: 191705 → 16 unique values (uniform)
+  Dim 140: 191157 → 16 unique values (uniform)
+  Dim 160: 185466 → 16 unique values (uniform)
+  Dim 180: 190452 → 16 unique values (uniform)
+  Dim 200: 139012 → 24 unique values (percentile)
+  Dim 220: 177478 → 16 unique values (uniform)
+  Dim 240: 190249 → 16 unique values (uniform)
+  Dim 260: 190238 → 15 unique values (uniform)
+  Dim 280: 186709 → 16 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 272 ( 90.7%)
+  left_skewed         :   3 (  1.0%)
+  gaussian            :  24 (  8.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [16, 24]
+  Mean: 16.1
+  Median: 16.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5280
+  SICK correlation: 0.7822
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  15.9
+  Mean |skewness|:  0.079
+  Mean kurtosis:    0.446
+  Storage size:     55.9 MB
+  Bits per value:   3.91
+  Compression:      8.2×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5681     0.7874     33.33%       55.9       8.2×
+Adaptive                 0.5280     0.7822     33.33%       55.9       8.2×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -2.5%  SICK: +0.0%  Size: -88% (8.2× compression)
+  Adaptive   - STS: -9.4%  SICK: -0.6%  Size: -88% (8.2× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 20 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 20 (precision: ~0.1000 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=20)
+--------------------------------------------------------------------------------
+
+Uniform k=20:
+  STS correlation:  0.5844
+  SICK correlation: 0.7879
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  19.6
+  Mean |skewness|:  0.074
+  Mean kurtosis:    0.363
+  Storage size:     60.8 MB
+  Bits per value:   4.25
+  Compression:      7.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=20)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=20)
+  Dim 20: other (k=20)
+  Dim 40: other (k=20)
+  Dim 60: other (k=20)
+  Dim 80: gaussian (k=20)
+  Dim 100: other (k=20)
+  Dim 120: other (k=20)
+  Dim 140: other (k=20)
+  Dim 160: other (k=20)
+  Dim 180: other (k=20)
+  Dim 200: right_skewed (k=30)
+  Dim 220: other (k=20)
+  Dim 240: gaussian (k=20)
+  Dim 260: gaussian (k=20)
+  Dim 280: other (k=20)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 20 unique values (uniform)
+  Dim 20: 192534 → 20 unique values (uniform)
+  Dim 40: 192983 → 20 unique values (uniform)
+  Dim 60: 190323 → 20 unique values (uniform)
+  Dim 80: 193096 → 20 unique values (uniform)
+  Dim 100: 190599 → 20 unique values (uniform)
+  Dim 120: 191705 → 20 unique values (uniform)
+  Dim 140: 191157 → 19 unique values (uniform)
+  Dim 160: 185466 → 20 unique values (uniform)
+  Dim 180: 190452 → 20 unique values (uniform)
+  Dim 200: 139012 → 30 unique values (percentile)
+  Dim 220: 177478 → 19 unique values (uniform)
+  Dim 240: 190249 → 20 unique values (uniform)
+  Dim 260: 190238 → 18 unique values (uniform)
+  Dim 280: 186709 → 20 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 274 ( 91.3%)
+  gaussian            :  22 (  7.3%)
+  left_skewed         :   3 (  1.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [20, 30]
+  Mean: 20.1
+  Median: 20.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6042
+  SICK correlation: 0.7639
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  19.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.430
+  Storage size:     60.8 MB
+  Bits per value:   4.25
+  Compression:      7.5×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5844     0.7879     33.33%       60.8       7.5×
+Adaptive                 0.6042     0.7639     33.33%       60.8       7.5×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.3%  SICK: +0.1%  Size: -87% (7.5× compression)
+  Adaptive   - STS: +3.7%  SICK: -2.9%  Size: -87% (7.5× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 25 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 25 (precision: ~0.0800 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=25)
+--------------------------------------------------------------------------------
+
+Uniform k=25:
+  STS correlation:  0.5869
+  SICK correlation: 0.7858
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  24.3
+  Mean |skewness|:  0.076
+  Mean kurtosis:    0.372
+  Storage size:     65.6 MB
+  Bits per value:   4.58
+  Compression:      7.0×
+
+3. ADAPTIVE QUANTIZATION (base_k=25)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=25)
+  Dim 20: other (k=25)
+  Dim 40: other (k=25)
+  Dim 60: other (k=25)
+  Dim 80: other (k=25)
+  Dim 100: other (k=25)
+  Dim 120: other (k=25)
+  Dim 140: other (k=25)
+  Dim 160: other (k=25)
+  Dim 180: other (k=25)
+  Dim 200: right_skewed (k=37)
+  Dim 220: other (k=25)
+  Dim 240: other (k=25)
+  Dim 260: other (k=25)
+  Dim 280: other (k=25)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 25 unique values (uniform)
+  Dim 20: 192534 → 25 unique values (uniform)
+  Dim 40: 192983 → 25 unique values (uniform)
+  Dim 60: 190323 → 25 unique values (uniform)
+  Dim 80: 193096 → 25 unique values (uniform)
+  Dim 100: 190599 → 25 unique values (uniform)
+  Dim 120: 191705 → 25 unique values (uniform)
+  Dim 140: 191157 → 24 unique values (uniform)
+  Dim 160: 185466 → 25 unique values (uniform)
+  Dim 180: 190452 → 25 unique values (uniform)
+  Dim 200: 139012 → 37 unique values (percentile)
+  Dim 220: 177478 → 24 unique values (uniform)
+  Dim 240: 190249 → 25 unique values (uniform)
+  Dim 260: 190238 → 22 unique values (uniform)
+  Dim 280: 186709 → 25 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 275 ( 91.7%)
+  left_skewed         :   3 (  1.0%)
+  gaussian            :  21 (  7.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [25, 37]
+  Mean: 25.2
+  Median: 25.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.6147
+  SICK correlation: 0.7826
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  24.5
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.418
+  Storage size:     65.6 MB
+  Bits per value:   4.58
+  Compression:      7.0×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5869     0.7858     33.33%       65.6       7.0×
+Adaptive                 0.6147     0.7826     33.33%       65.6       7.0×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.8%  SICK: -0.2%  Size: -86% (7.0× compression)
+  Adaptive   - STS: +5.5%  SICK: -0.6%  Size: -86% (7.0× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 32 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 32 (precision: ~0.0625 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=32)
+--------------------------------------------------------------------------------
+
+Uniform k=32:
+  STS correlation:  0.5707
+  SICK correlation: 0.7927
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  30.8
+  Mean |skewness|:  0.076
+  Mean kurtosis:    0.379
+  Storage size:     70.2 MB
+  Bits per value:   4.91
+  Compression:      6.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=32)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=32)
+  Dim 20: other (k=32)
+  Dim 40: other (k=32)
+  Dim 60: other (k=32)
+  Dim 80: other (k=32)
+  Dim 100: other (k=32)
+  Dim 120: other (k=32)
+  Dim 140: other (k=32)
+  Dim 160: gaussian (k=32)
+  Dim 180: other (k=32)
+  Dim 200: right_skewed (k=48)
+  Dim 220: other (k=32)
+  Dim 240: other (k=32)
+  Dim 260: gaussian (k=32)
+  Dim 280: other (k=32)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 32 unique values (uniform)
+  Dim 20: 192534 → 32 unique values (uniform)
+  Dim 40: 192983 → 32 unique values (uniform)
+  Dim 60: 190323 → 32 unique values (uniform)
+  Dim 80: 193096 → 32 unique values (uniform)
+  Dim 100: 190599 → 32 unique values (uniform)
+  Dim 120: 191705 → 32 unique values (uniform)
+  Dim 140: 191157 → 30 unique values (uniform)
+  Dim 160: 185466 → 32 unique values (uniform)
+  Dim 180: 190452 → 32 unique values (uniform)
+  Dim 200: 139012 → 48 unique values (percentile)
+  Dim 220: 177478 → 30 unique values (uniform)
+  Dim 240: 190249 → 32 unique values (uniform)
+  Dim 260: 190238 → 28 unique values (uniform)
+  Dim 280: 186709 → 32 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 271 ( 90.3%)
+  gaussian            :  25 (  8.3%)
+  left_skewed         :   3 (  1.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [32, 48]
+  Mean: 32.2
+  Median: 32.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5830
+  SICK correlation: 0.7832
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  31.0
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.405
+  Storage size:     70.9 MB
+  Bits per value:   4.95
+  Compression:      6.5×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5707     0.7927     33.33%       70.2       6.5×
+Adaptive                 0.5830     0.7832     33.33%       70.9       6.5×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -2.0%  SICK: +0.7%  Size: -85% (6.5× compression)
+  Adaptive   - STS: +0.1%  SICK: -0.5%  Size: -85% (6.5× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 33 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 33 (precision: ~0.0606 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=33)
+--------------------------------------------------------------------------------
+
+Uniform k=33:
+  STS correlation:  0.5769
+  SICK correlation: 0.7919
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  31.7
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.379
+  Storage size:     70.9 MB
+  Bits per value:   4.95
+  Compression:      6.5×
+
+3. ADAPTIVE QUANTIZATION (base_k=33)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: gaussian (k=33)
+  Dim 20: other (k=33)
+  Dim 40: gaussian (k=33)
+  Dim 60: gaussian (k=33)
+  Dim 80: other (k=33)
+  Dim 100: other (k=33)
+  Dim 120: gaussian (k=33)
+  Dim 140: other (k=33)
+  Dim 160: other (k=33)
+  Dim 180: other (k=33)
+  Dim 200: right_skewed (k=49)
+  Dim 220: other (k=33)
+  Dim 240: other (k=33)
+  Dim 260: other (k=33)
+  Dim 280: other (k=33)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 33 unique values (uniform)
+  Dim 20: 192534 → 33 unique values (uniform)
+  Dim 40: 192983 → 33 unique values (uniform)
+  Dim 60: 190323 → 33 unique values (uniform)
+  Dim 80: 193096 → 33 unique values (uniform)
+  Dim 100: 190599 → 33 unique values (uniform)
+  Dim 120: 191705 → 33 unique values (uniform)
+  Dim 140: 191157 → 31 unique values (uniform)
+  Dim 160: 185466 → 32 unique values (uniform)
+  Dim 180: 190452 → 33 unique values (uniform)
+  Dim 200: 139012 → 49 unique values (percentile)
+  Dim 220: 177478 → 31 unique values (uniform)
+  Dim 240: 190249 → 32 unique values (uniform)
+  Dim 260: 190238 → 29 unique values (uniform)
+  Dim 280: 186709 → 33 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  gaussian            :  26 (  8.7%)
+  other               : 270 ( 90.0%)
+  left_skewed         :   3 (  1.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [33, 49]
+  Mean: 33.2
+  Median: 33.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5764
+  SICK correlation: 0.7793
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  31.9
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.403
+  Storage size:     70.9 MB
+  Bits per value:   4.95
+  Compression:      6.5×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5769     0.7919     33.33%       70.9       6.5×
+Adaptive                 0.5764     0.7793     33.33%       70.9       6.5×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -1.0%  SICK: +0.6%  Size: -85% (6.5× compression)
+  Adaptive   - STS: -1.0%  SICK: -1.0%  Size: -85% (6.5× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 50 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 50 (precision: ~0.0400 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=50)
+--------------------------------------------------------------------------------
+
+Uniform k=50:
+  STS correlation:  0.5798
+  SICK correlation: 0.7924
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  47.0
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.385
+  Storage size:     79.1 MB
+  Bits per value:   5.52
+  Compression:      5.8×
+
+3. ADAPTIVE QUANTIZATION (base_k=50)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=50)
+  Dim 20: other (k=50)
+  Dim 40: other (k=50)
+  Dim 60: other (k=50)
+  Dim 80: other (k=50)
+  Dim 100: other (k=50)
+  Dim 120: other (k=50)
+  Dim 140: other (k=50)
+  Dim 160: other (k=50)
+  Dim 180: other (k=50)
+  Dim 200: right_skewed (k=75)
+  Dim 220: other (k=50)
+  Dim 240: other (k=50)
+  Dim 260: gaussian (k=50)
+  Dim 280: other (k=50)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 49 unique values (uniform)
+  Dim 20: 192534 → 50 unique values (uniform)
+  Dim 40: 192983 → 48 unique values (uniform)
+  Dim 60: 190323 → 49 unique values (uniform)
+  Dim 80: 193096 → 49 unique values (uniform)
+  Dim 100: 190599 → 49 unique values (uniform)
+  Dim 120: 191705 → 48 unique values (uniform)
+  Dim 140: 191157 → 46 unique values (uniform)
+  Dim 160: 185466 → 47 unique values (uniform)
+  Dim 180: 190452 → 49 unique values (uniform)
+  Dim 200: 139012 → 75 unique values (percentile)
+  Dim 220: 177478 → 46 unique values (uniform)
+  Dim 240: 190249 → 47 unique values (uniform)
+  Dim 260: 190238 → 43 unique values (uniform)
+  Dim 280: 186709 → 50 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 274 ( 91.3%)
+  left_skewed         :   3 (  1.0%)
+  gaussian            :  22 (  7.3%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [50, 75]
+  Mean: 50.3
+  Median: 50.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5706
+  SICK correlation: 0.7802
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  47.3
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.392
+  Storage size:     79.5 MB
+  Bits per value:   5.55
+  Compression:      5.8×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5798     0.7924     33.33%       79.1       5.8×
+Adaptive                 0.5706     0.7802     33.33%       79.5       5.8×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -0.5%  SICK: +0.7%  Size: -83% (5.8× compression)
+  Adaptive   - STS: -2.0%  SICK: -0.9%  Size: -83% (5.8× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 64 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 64 (precision: ~0.0312 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=64)
+--------------------------------------------------------------------------------
+
+Uniform k=64:
+  STS correlation:  0.5856
+  SICK correlation: 0.7919
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  59.3
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.386
+  Storage size:     84.2 MB
+  Bits per value:   5.88
+  Compression:      5.4×
+
+3. ADAPTIVE QUANTIZATION (base_k=64)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=64)
+  Dim 20: other (k=64)
+  Dim 40: other (k=64)
+  Dim 60: other (k=64)
+  Dim 80: other (k=64)
+  Dim 100: other (k=64)
+  Dim 120: other (k=64)
+  Dim 140: other (k=64)
+  Dim 160: other (k=64)
+  Dim 180: other (k=64)
+  Dim 200: right_skewed (k=96)
+  Dim 220: other (k=64)
+  Dim 240: other (k=64)
+  Dim 260: other (k=64)
+  Dim 280: other (k=64)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 62 unique values (uniform)
+  Dim 20: 192534 → 63 unique values (uniform)
+  Dim 40: 192983 → 61 unique values (uniform)
+  Dim 60: 190323 → 63 unique values (uniform)
+  Dim 80: 193096 → 62 unique values (uniform)
+  Dim 100: 190599 → 62 unique values (uniform)
+  Dim 120: 191705 → 61 unique values (uniform)
+  Dim 140: 191157 → 59 unique values (uniform)
+  Dim 160: 185466 → 58 unique values (uniform)
+  Dim 180: 190452 → 62 unique values (uniform)
+  Dim 200: 139012 → 96 unique values (percentile)
+  Dim 220: 177478 → 59 unique values (uniform)
+  Dim 240: 190249 → 60 unique values (uniform)
+  Dim 260: 190238 → 55 unique values (uniform)
+  Dim 280: 186709 → 62 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 274 ( 91.3%)
+  gaussian            :  22 (  7.3%)
+  left_skewed         :   3 (  1.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [64, 96]
+  Mean: 64.4
+  Median: 64.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5930
+  SICK correlation: 0.7834
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  59.7
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.389
+  Storage size:     84.2 MB
+  Bits per value:   5.88
+  Compression:      5.4×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5856     0.7919     33.33%       84.2       5.4×
+Adaptive                 0.5930     0.7834     33.33%       84.2       5.4×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.5%  SICK: +0.6%  Size: -82% (5.4× compression)
+  Adaptive   - STS: +1.8%  SICK: -0.5%  Size: -82% (5.4× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 100 models-open/glove-wiki-gigaword-300.bin 
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 100 (precision: ~0.0200 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=100)
+--------------------------------------------------------------------------------
+
+Uniform k=100:
+  STS correlation:  0.5809
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  90.1
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.388
+  Storage size:     93.0 MB
+  Bits per value:   6.49
+  Compression:      4.9×
+
+3. ADAPTIVE QUANTIZATION (base_k=100)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=100)
+  Dim 20: other (k=100)
+  Dim 40: other (k=100)
+  Dim 60: other (k=100)
+  Dim 80: gaussian (k=100)
+  Dim 100: other (k=100)
+  Dim 120: other (k=100)
+  Dim 140: gaussian (k=100)
+  Dim 160: other (k=100)
+  Dim 180: other (k=100)
+  Dim 200: right_skewed (k=150)
+  Dim 220: other (k=100)
+  Dim 240: other (k=100)
+  Dim 260: other (k=100)
+  Dim 280: other (k=100)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 94 unique values (uniform)
+  Dim 20: 192534 → 95 unique values (uniform)
+  Dim 40: 192983 → 92 unique values (uniform)
+  Dim 60: 190323 → 96 unique values (uniform)
+  Dim 80: 193096 → 93 unique values (uniform)
+  Dim 100: 190599 → 95 unique values (uniform)
+  Dim 120: 191705 → 95 unique values (uniform)
+  Dim 140: 191157 → 87 unique values (uniform)
+  Dim 160: 185466 → 84 unique values (uniform)
+  Dim 180: 190452 → 95 unique values (uniform)
+  Dim 200: 139012 → 150 unique values (percentile)
+  Dim 220: 177478 → 90 unique values (uniform)
+  Dim 240: 190249 → 92 unique values (uniform)
+  Dim 260: 190238 → 83 unique values (uniform)
+  Dim 280: 186709 → 95 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 269 ( 89.7%)
+  left_skewed         :   3 (  1.0%)
+  gaussian            :  27 (  9.0%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [100, 150]
+  Mean: 100.7
+  Median: 100.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5732
+  SICK correlation: 0.7842
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  90.8
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.386
+  Storage size:     93.0 MB
+  Bits per value:   6.49
+  Compression:      4.9×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5809     0.7871     33.33%       93.0       4.9×
+Adaptive                 0.5732     0.7842     33.33%       93.0       4.9×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: -0.3%  SICK: +0.0%  Size: -80% (4.9× compression)
+  Adaptive   - STS: -1.6%  SICK: -0.4%  Size: -80% (4.9× compression)
+================================================================================
+
+$ python evaluate_quantization.py --base-k 128 models-open/glove-wiki-gigaword-300.bin
+
+================================================================================
+QUANTIZATION EVALUATION
+Base k: 128 (precision: ~0.0156 per step)
+Mode: Percentile (default) for skewed dimensions
+================================================================================
+
+================================================================================
+Processing: models-open/glove-wiki-gigaword-300.bin
+================================================================================
+
+  Attempting to load as binary with gensim...
+  ✓ Loaded as Word2Vec binary format
+================================================================================
+QUANTIZATION COMPARISON: glove-wiki-gigaword-300.bin
+================================================================================
+
+1. ORIGINAL (No quantization)
+--------------------------------------------------------------------------------
+
+Original:
+  STS correlation:  0.5825
+  SICK correlation: 0.7871
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  188825.8
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.389
+  Storage size:     466.8 MB
+  Bits per value:   17.53
+  Compression:      1.0×
+
+2. UNIFORM QUANTIZATION (k=128)
+--------------------------------------------------------------------------------
+
+Uniform k=128:
+  STS correlation:  0.5843
+  SICK correlation: 0.7866
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  113.4
+  Mean |skewness|:  0.078
+  Mean kurtosis:    0.388
+  Storage size:     97.7 MB
+  Bits per value:   6.82
+  Compression:      4.7×
+
+3. ADAPTIVE QUANTIZATION (base_k=128)
+--------------------------------------------------------------------------------
+Analyzing 300 dimensions...
+  Dim 0: other (k=128)
+  Dim 20: other (k=128)
+  Dim 40: other (k=128)
+  Dim 60: other (k=128)
+  Dim 80: other (k=128)
+  Dim 100: other (k=128)
+  Dim 120: other (k=128)
+  Dim 140: other (k=128)
+  Dim 160: other (k=128)
+  Dim 180: other (k=128)
+  Dim 200: right_skewed (k=192)
+  Dim 220: other (k=128)
+  Dim 240: other (k=128)
+  Dim 260: gaussian (k=128)
+  Dim 280: other (k=128)
+
+Quantizing 300 dimensions adaptively...
+  Dim 0: 189090 → 117 unique values (uniform)
+  Dim 20: 192534 → 120 unique values (uniform)
+  Dim 40: 192983 → 118 unique values (uniform)
+  Dim 60: 190323 → 119 unique values (uniform)
+  Dim 80: 193096 → 118 unique values (uniform)
+  Dim 100: 190599 → 119 unique values (uniform)
+  Dim 120: 191705 → 121 unique values (uniform)
+  Dim 140: 191157 → 109 unique values (uniform)
+  Dim 160: 185466 → 106 unique values (uniform)
+  Dim 180: 190452 → 118 unique values (uniform)
+  Dim 200: 139012 → 192 unique values (percentile)
+  Dim 220: 177478 → 113 unique values (uniform)
+  Dim 240: 190249 → 116 unique values (uniform)
+  Dim 260: 190238 → 102 unique values (uniform)
+  Dim 280: 186709 → 123 unique values (uniform)
+
+======================================================================
+ADAPTIVE QUANTIZATION SUMMARY
+======================================================================
+Total dimensions: 300
+
+Distribution types:
+  other               : 276 ( 92.0%)
+  left_skewed         :   3 (  1.0%)
+  gaussian            :  20 (  6.7%)
+  right_skewed        :   1 (  0.3%)
+
+Quantization methods:
+  uniform             : 296 ( 98.7%)
+  percentile          :   4 (  1.3%)
+
+Quantization levels (k):
+  Range: [128, 192]
+  Mean: 128.9
+  Median: 128.0
+======================================================================
+
+
+Adaptive:
+  STS correlation:  0.5833
+  SICK correlation: 0.7877
+  Analogy accuracy: 33.33%
+  Mean unique/dim:  114.3
+  Mean |skewness|:  0.077
+  Mean kurtosis:    0.386
+  Storage size:     97.9 MB
+  Bits per value:   6.83
+  Compression:      4.7×
+
+================================================================================
+COMPARISON TABLE: glove-wiki-gigaword-300.bin
+================================================================================
+Method                      STS       SICK    Analogy   Size(MB)   Compress
+--------------------------------------------------------------------------------
+Original                 0.5825     0.7871     33.33%      466.8       1.0×
+Uniform                  0.5843     0.7866     33.33%       97.7       4.7×
+Adaptive                 0.5833     0.7877     33.33%       97.9       4.7×
+--------------------------------------------------------------------------------
+Improvements over original:
+  Uniform    - STS: +0.3%  SICK: -0.1%  Size: -79% (4.7× compression)
+  Adaptive   - STS: +0.1%  SICK: +0.1%  Size: -79% (4.7× compression)
+================================================================================
