@@ -12,9 +12,10 @@ This repository implements the quantization methods from our research paper demo
 - **Adaptive per-dimension quantization**: Automatically classifies each dimension's distribution type and applies optimal quantization method
 - **Multiple quantization strategies**: Uniform (Riemann), Lebesgue (equi-depth), percentile, k-means, robust
 - **Walsh function-aware**: Emphasizes powers of 2 (k=16, 32, 64) based on theoretical grounding
+- **Multiple output formats**: Save as Word2Vec (.vec, .bin), PyTorch (.pt), NumPy (.npz), or HDF5 (.h5)
 - **Comprehensive evaluation**: STS (Semantic Textual Similarity) and SICK (compositional semantics) benchmarks
 - **Publication-quality visualizations**: Distribution analysis, before/after comparisons, performance metrics
-- **Minimal dependencies**: NumPy, SciPy, scikit-learn, Matplotlib
+- **Minimal dependencies**: NumPy, SciPy, scikit-learn, Matplotlib (optional: gensim, torch, h5py for additional formats)
 
 ## 📊 Results at a Glance
 
@@ -42,7 +43,7 @@ pip install numpy scipy scikit-learn matplotlib
 ### Basic Usage
 
 ```python
-from adaptive_quantization import AdaptiveQuantizer, load_embeddings
+from adaptive_quantization import AdaptiveQuantizer, load_embeddings, save_embeddings
 
 # Load embeddings
 embeddings, words = load_embeddings('path/to/embeddings.vec')
@@ -53,19 +54,47 @@ quantized = quantizer.quantize(embeddings)
 
 # Print summary
 quantizer.print_summary()
+
+# Save quantized embeddings
+save_embeddings(quantized, words, 'embeddings_quantized_k32.vec')
 ```
 
 ### Command-Line Usage
 
+**Full evaluation and conversion:**
 ```bash
 # Evaluate with k=32 (recommended)
 python evaluate_quantization.py embeddings.vec --base-k 32
+
+# Evaluate and save quantized embeddings
+python evaluate_quantization.py embeddings.vec --base-k 32 --save-quantized
+
+# Save both uniform and adaptive quantizations
+python evaluate_quantization.py embeddings.vec --base-k 32 --save-quantized --save-method both
+
+# Save in binary format (more compact, requires gensim)
+python evaluate_quantization.py embeddings.vec --base-k 32 --save-quantized --save-binary
 
 # Visualize quantization effects
 python visualize_quantization.py embeddings.vec --base-k 32
 
 # Use Lebesgue quantization for skewed dimensions
-python evaluate_quantization.py embeddings.vec --base-k 32 --use-lebesgue
+python evaluate_quantization.py embeddings.vec --base-k 32 --use-lebesgue --save-quantized
+```
+
+**Quick conversion (without evaluation):**
+```bash
+# Simple conversion with default settings (k=32, adaptive + Lebesgue)
+python convert_embeddings.py input.vec output.vec
+
+# Custom quantization level
+python convert_embeddings.py input.vec output.vec --k 16
+
+# Save as binary for maximum compression
+python convert_embeddings.py input.vec output.bin --binary
+
+# Quiet mode (no progress output)
+python convert_embeddings.py input.vec output.vec --quiet
 ```
 
 ## 📚 Documentation
@@ -90,6 +119,39 @@ NLP2026 (in submission)
 - Compression paradox: 8× compression with up to +6.3% semantic improvement
 
 ## 📖 Usage Examples
+
+### Common Use Cases
+
+**1. Compress embeddings for deployment**
+```bash
+# Compress GloVe-300 from 467 MB to ~55 MB (8× smaller, better quality!)
+python evaluate_quantization.py --base-k 32 --save-quantized glove.6B.300d.vec
+```
+
+**2. Evaluate before converting**
+```bash
+# First check performance impact
+python evaluate_quantization.py --base-k 32 embeddings.vec
+
+# Then save if satisfied with results
+python evaluate_quantization.py --base-k 32 --save-quantized embeddings.vec
+```
+
+**3. Create deployment-ready embeddings**
+```bash
+# Save in binary format for maximum compression
+python evaluate_quantization.py --base-k 32 --save-quantized --save-binary embeddings.vec
+
+# Result: Smaller files that load faster and perform better
+```
+
+**4. Batch convert multiple embedding files**
+```bash
+# Convert all embeddings in current directory
+for f in *.vec; do
+    python evaluate_quantization.py --base-k 32 --save-quantized "$f"
+done
+```
 
 ### Example 1: Basic Quantization
 
@@ -160,6 +222,75 @@ viz.plot_before_after_distributions(
 )
 ```
 
+### Example 4: Converting and Saving in Different Formats
+
+```python
+from adaptive_quantization import AdaptiveQuantizer, load_embeddings, save_embeddings
+
+# Load original embeddings (supports .vec, .bin, .pt, .npz, .h5)
+embeddings, words = load_embeddings('glove.6B.300d.vec')
+print(f"Original size: {embeddings.nbytes / 1024**2:.1f} MB")
+
+# Quantize with k=32 (recommended)
+quantizer = AdaptiveQuantizer(base_k=32, use_lebesgue=True)
+quantized = quantizer.quantize(embeddings)
+
+# Save in different formats - all with automatic format detection!
+
+# 1. Word2Vec text format (universal compatibility)
+save_embeddings(quantized, words, 'glove.quantized.vec')
+
+# 2. Word2Vec binary format (compact, fast)
+save_embeddings(quantized, words, 'glove.quantized.bin')
+
+# 3. PyTorch format (with full metadata - best for research)
+save_embeddings(quantized, words, 'glove.quantized.pt',
+               quantization_info={
+                   'base_k': 32, 
+                   'method': 'adaptive', 
+                   'use_lebesgue': True,
+                   'experiment_id': 'exp001'
+               })
+
+# 4. NumPy compressed format (scientific Python)
+save_embeddings(quantized, words, 'glove.quantized.npz',
+               quantization_info={'base_k': 32, 'method': 'adaptive'})
+
+# 5. HDF5 format (scientific data standard)
+save_embeddings(quantized, words, 'glove.quantized.h5',
+               quantization_info={'base_k': 32, 'method': 'adaptive'})
+
+# Result: ~467 MB → ~55 MB (8× compression) with improved semantic quality!
+# All formats load the same way:
+emb, words = load_embeddings('glove.quantized.pt')  # Works for any format!
+```
+
+### Example 5: Batch Conversion
+
+```python
+from adaptive_quantization import AdaptiveQuantizer, load_embeddings, save_embeddings
+import glob
+import os
+
+# Convert all embeddings in a directory
+for filepath in glob.glob('embeddings/*.vec'):
+    print(f"Processing {filepath}...")
+    
+    # Load
+    embeddings, words = load_embeddings(filepath)
+    
+    # Quantize
+    quantizer = AdaptiveQuantizer(base_k=32)
+    quantized = quantizer.quantize(embeddings)
+    
+    # Save with new name
+    basename = os.path.basename(filepath).replace('.vec', '')
+    output_path = f'quantized/{basename}_k32.vec'
+    save_embeddings(quantized, words, output_path)
+    
+    print(f"✓ Saved to {output_path}\n")
+```
+
 ## 🎨 Visualizations
 
 The visualization module creates publication-quality figures:
@@ -211,7 +342,9 @@ embedding-quantization/
 ├── adaptive_quantization.py    # Core quantization implementation
 ├── evaluate_quantization.py    # Evaluation framework (STS, SICK)
 ├── visualize_quantization.py   # Visualization tools
+├── convert_embeddings.py       # Simple standalone converter
 ├── README.md                    # This file
+├── FORMAT_GUIDE.md              # Detailed format documentation
 ├── docs/
 │   ├── API_REFERENCE.md        # Detailed API documentation
 │   ├── EXAMPLES.md             # Extended usage examples
@@ -220,6 +353,7 @@ embedding-quantization/
 └── examples/
     ├── basic_quantization.py   # Basic usage example
     ├── batch_evaluation.py     # Batch processing
+    ├── batch_conversion.py     # Batch embedding conversion
     └── custom_metrics.py       # Custom evaluation metrics
 ```
 
@@ -233,18 +367,39 @@ python -m pytest tests/
 python evaluate_quantization.py --test-mode
 ```
 
-## 📊 Embedding Format
+## 📊 Supported Embedding Formats
 
-The code expects embeddings in `.vec` format (GloVe/Word2Vec style):
+The toolkit supports multiple input and output formats with automatic format detection:
 
+### Input Formats (Load)
+- **Word2Vec text** (`.vec`, `.txt`): Standard text format with header
+- **GloVe text** (`.txt`): Text format without header
+- **Word2Vec binary** (`.bin`): Binary format (requires gensim)
+- **PyTorch** (`.pt`, `.pth`): PyTorch tensor format (requires torch)
+- **NumPy** (`.npz`): NumPy compressed archive
+- **HDF5** (`.h5`, `.hdf5`): Scientific data format (requires h5py)
+
+### Output Formats (Save)
+All input formats plus flexible format conversion. See [FORMAT_GUIDE.md](FORMAT_GUIDE.md) for detailed information.
+
+**Format auto-detection**: Extension determines format automatically
+```python
+save_embeddings(emb, words, 'output.vec')   # → Word2Vec text
+save_embeddings(emb, words, 'output.bin')   # → Word2Vec binary
+save_embeddings(emb, words, 'output.pt')    # → PyTorch
+save_embeddings(emb, words, 'output.npz')   # → NumPy
+save_embeddings(emb, words, 'output.h5')    # → HDF5
 ```
-400000 100
+
+### Original .vec Format Example
+```
+400000 300
 the 0.418 0.24968 -0.41242 ...
 , 0.013441 0.23682 -0.16899 ...
 . 0.15164 0.30177 -0.16763 ...
 ```
 
-**First line**: `<vocabulary_size> <dimensions>`
+**First line**: `<vocabulary_size> <dimensions>`  
 **Subsequent lines**: `<word> <value1> <value2> ...`
 
 ## 🤝 Contributing

@@ -343,49 +343,357 @@ class UniformQuantizer:
         return quantized
 
 
+def save_embeddings(embeddings: np.ndarray, words: List[str], filepath: str, 
+                   format: str = None, quantization_info: Dict = None):
+    """
+    Save embeddings to file in various formats with automatic format detection.
+    
+    Args:
+        embeddings: Embedding matrix (vocab_size × dimensions)
+        words: List of words corresponding to each embedding
+        filepath: Output file path (format auto-detected from extension)
+        format: Force specific format. Options: 'word2vec_text', 'word2vec_bin', 
+                'pytorch', 'numpy', 'hdf5'. If None, auto-detect from extension.
+        quantization_info: Optional dict with quantization parameters to save as metadata
+    
+    Supported formats:
+        .vec  → Word2Vec text format (human-readable, ~100-500 MB)
+        .bin  → Word2Vec binary format (compact, requires gensim, ~100-500 MB)
+        .pt   → PyTorch format (tensor + metadata, ~100-500 MB)
+        .npz  → NumPy compressed format (arrays + metadata, ~100-500 MB)
+        .h5   → HDF5 format (scientific data standard, ~100-500 MB)
+    
+    Examples:
+        # Auto-detect format from extension
+        save_embeddings(quantized, words, 'output.vec')      # Word2Vec text
+        save_embeddings(quantized, words, 'output.bin')      # Word2Vec binary
+        save_embeddings(quantized, words, 'output.pt')       # PyTorch
+        save_embeddings(quantized, words, 'output.npz')      # NumPy
+        save_embeddings(quantized, words, 'output.h5')       # HDF5
+        
+        # Force specific format
+        save_embeddings(quantized, words, 'output.txt', format='word2vec_text')
+        
+        # With metadata
+        save_embeddings(quantized, words, 'output.pt',
+                       quantization_info={'base_k': 32, 'method': 'adaptive'})
+    """
+    import os
+    vocab_size, n_dims = embeddings.shape
+    
+    # Auto-detect format from extension if not specified
+    if format is None:
+        ext = os.path.splitext(filepath)[1].lower()
+        format_map = {
+            '.vec': 'word2vec_text',
+            '.txt': 'word2vec_text',
+            '.bin': 'word2vec_bin',
+            '.pt': 'pytorch',
+            '.pth': 'pytorch',
+            '.npz': 'numpy',
+            '.npy': 'numpy',
+            '.h5': 'hdf5',
+            '.hdf5': 'hdf5'
+        }
+        format = format_map.get(ext, 'word2vec_text')
+    
+    # Save based on format
+    if format == 'word2vec_text':
+        _save_word2vec_text(embeddings, words, filepath, quantization_info)
+    
+    elif format == 'word2vec_bin':
+        _save_word2vec_binary(embeddings, words, filepath, quantization_info)
+    
+    elif format == 'pytorch':
+        _save_pytorch(embeddings, words, filepath, quantization_info)
+    
+    elif format == 'numpy':
+        _save_numpy(embeddings, words, filepath, quantization_info)
+    
+    elif format == 'hdf5':
+        _save_hdf5(embeddings, words, filepath, quantization_info)
+    
+    else:
+        raise ValueError(f"Unsupported format: {format}")
+    
+    # Print file size
+    size_mb = os.path.getsize(filepath) / (1024 * 1024)
+    print(f"  File size: {size_mb:.1f} MB")
+
+
+def _save_word2vec_text(embeddings: np.ndarray, words: List[str], 
+                        filepath: str, quantization_info: Dict = None):
+    """Save in Word2Vec text format (.vec)."""
+    vocab_size, n_dims = embeddings.shape
+    
+    with open(filepath, 'w', encoding='utf-8') as f:
+        # Write header (vocab_size dimensions)
+        f.write(f"{vocab_size} {n_dims}\n")
+        
+        # Write quantization info as comment if provided
+        if quantization_info:
+            f.write(f"# Quantization: {quantization_info}\n")
+        
+        # Write word vectors
+        for word, vector in zip(words, embeddings):
+            vector_str = ' '.join(f'{v:.6f}' for v in vector)
+            f.write(f"{word} {vector_str}\n")
+    
+    print(f"✓ Saved {vocab_size} embeddings ({n_dims}d) to {filepath} [Word2Vec text format]")
+
+
+def _save_word2vec_binary(embeddings: np.ndarray, words: List[str], 
+                          filepath: str, quantization_info: Dict = None):
+    """Save in Word2Vec binary format (.bin) using gensim."""
+    try:
+        from gensim.models import KeyedVectors
+    except ImportError:
+        raise ImportError("gensim is required for Word2Vec binary format. "
+                         "Install with: pip install gensim")
+    
+    vocab_size, n_dims = embeddings.shape
+    
+    # Create KeyedVectors object
+    kv = KeyedVectors(n_dims)
+    kv.add_vectors(words, embeddings)
+    
+    # Save in binary format
+    kv.save_word2vec_format(filepath, binary=True)
+    
+    print(f"✓ Saved {vocab_size} embeddings ({n_dims}d) to {filepath} [Word2Vec binary format]")
+    if quantization_info:
+        print(f"  Note: Metadata not stored in binary format. Consider using .pt or .h5 for metadata.")
+
+
+def _save_pytorch(embeddings: np.ndarray, words: List[str], 
+                  filepath: str, quantization_info: Dict = None):
+    """Save in PyTorch format (.pt)."""
+    try:
+        import torch
+    except ImportError:
+        raise ImportError("PyTorch is required for .pt format. "
+                         "Install with: pip install torch")
+    
+    vocab_size, n_dims = embeddings.shape
+    
+    # Create save dict
+    save_dict = {
+        'embeddings': torch.from_numpy(embeddings),
+        'words': words,
+        'vocab_size': vocab_size,
+        'embedding_dim': n_dims,
+        'format_version': '1.0'
+    }
+    
+    # Add quantization info if provided
+    if quantization_info:
+        save_dict['quantization_info'] = quantization_info
+    
+    # Save
+    torch.save(save_dict, filepath)
+    
+    print(f"✓ Saved {vocab_size} embeddings ({n_dims}d) to {filepath} [PyTorch format]")
+    if quantization_info:
+        print(f"  Metadata: {quantization_info}")
+
+
+def _save_numpy(embeddings: np.ndarray, words: List[str], 
+                filepath: str, quantization_info: Dict = None):
+    """Save in NumPy compressed format (.npz)."""
+    vocab_size, n_dims = embeddings.shape
+    
+    # Create save dict
+    save_dict = {
+        'embeddings': embeddings,
+        'words': np.array(words, dtype=object),
+        'vocab_size': np.array([vocab_size]),
+        'embedding_dim': np.array([n_dims])
+    }
+    
+    # Add quantization info if provided (as JSON string)
+    if quantization_info:
+        import json
+        save_dict['quantization_info'] = np.array([json.dumps(quantization_info)])
+    
+    # Save compressed
+    np.savez_compressed(filepath, **save_dict)
+    
+    print(f"✓ Saved {vocab_size} embeddings ({n_dims}d) to {filepath} [NumPy compressed format]")
+    if quantization_info:
+        print(f"  Metadata: {quantization_info}")
+
+
+def _save_hdf5(embeddings: np.ndarray, words: List[str], 
+               filepath: str, quantization_info: Dict = None):
+    """Save in HDF5 format (.h5)."""
+    try:
+        import h5py
+    except ImportError:
+        raise ImportError("h5py is required for HDF5 format. "
+                         "Install with: pip install h5py")
+    
+    vocab_size, n_dims = embeddings.shape
+    
+    with h5py.File(filepath, 'w') as f:
+        # Save embeddings
+        f.create_dataset('embeddings', data=embeddings, compression='gzip')
+        
+        # Save words as UTF-8 encoded strings
+        dt = h5py.string_dtype(encoding='utf-8')
+        f.create_dataset('words', data=words, dtype=dt)
+        
+        # Save metadata
+        f.attrs['vocab_size'] = vocab_size
+        f.attrs['embedding_dim'] = n_dims
+        f.attrs['format_version'] = '1.0'
+        
+        # Add quantization info if provided
+        if quantization_info:
+            import json
+            f.attrs['quantization_info'] = json.dumps(quantization_info)
+    
+    print(f"✓ Saved {vocab_size} embeddings ({n_dims}d) to {filepath} [HDF5 format]")
+    if quantization_info:
+        print(f"  Metadata: {quantization_info}")
+
+
 def load_embeddings(filepath: str) -> Tuple[np.ndarray, List[str]]:
     """
-    Load embeddings from various formats.
+    Load embeddings from various formats with automatic format detection.
     
     Supports:
-    - Word2Vec text format (.vec, .txt)
-    - GloVe text format (.txt)
-    - Word2Vec binary format (.bin)
-    - GloVe binary format (.bin) - will try gensim first
+        .vec, .txt  → Word2Vec/GloVe text format
+        .bin        → Word2Vec binary format (requires gensim)
+        .pt, .pth   → PyTorch format (requires torch)
+        .npz, .npy  → NumPy format
+        .h5, .hdf5  → HDF5 format (requires h5py)
+    
+    Returns:
+        Tuple of (embeddings, words) where embeddings is vocab_size × dimensions
     """
     import os
     from pathlib import Path
     
-    # Try gensim KeyedVectors first for .bin files
-    if filepath.endswith('.bin'):
-        try:
-            from gensim.models import KeyedVectors
-            print(f"  Attempting to load as binary with gensim...")
-            
-            # Try Word2Vec binary format first
-            try:
-                kv = KeyedVectors.load_word2vec_format(filepath, binary=True)
-                print(f"  ✓ Loaded as Word2Vec binary format")
-                return kv.vectors, list(kv.index_to_key)
-            except:
-                pass
-            
-            # Try GloVe format (text-like but in .bin extension)
-            try:
-                kv = KeyedVectors.load_word2vec_format(filepath, binary=False, no_header=True)
-                print(f"  ✓ Loaded as GloVe text format (in .bin file)")
-                return kv.vectors, list(kv.index_to_key)
-            except:
-                pass
-                
-        except ImportError:
-            print(f"  Warning: gensim not available, trying manual parsing...")
+    ext = os.path.splitext(filepath)[1].lower()
     
-    # Try text format (Word2Vec or GloVe)
+    # PyTorch format
+    if ext in ['.pt', '.pth']:
+        return _load_pytorch(filepath)
+    
+    # NumPy format
+    elif ext in ['.npz', '.npy']:
+        return _load_numpy(filepath)
+    
+    # HDF5 format
+    elif ext in ['.h5', '.hdf5']:
+        return _load_hdf5(filepath)
+    
+    # Word2Vec binary format
+    elif ext == '.bin':
+        return _load_word2vec_binary(filepath)
+    
+    # Word2Vec/GloVe text format (default)
+    else:
+        return _load_word2vec_text(filepath)
+
+
+def _load_pytorch(filepath: str) -> Tuple[np.ndarray, List[str]]:
+    """Load embeddings from PyTorch format."""
     try:
-        words = []
-        vectors = []
+        import torch
+    except ImportError:
+        raise ImportError("PyTorch is required to load .pt files. "
+                         "Install with: pip install torch")
+    
+    print(f"  Loading PyTorch format...")
+    data = torch.load(filepath, map_location='cpu')
+    
+    embeddings = data['embeddings'].numpy()
+    words = data['words']
+    
+    if 'quantization_info' in data:
+        print(f"  Quantization metadata: {data['quantization_info']}")
+    
+    print(f"  ✓ Loaded {len(words)} vectors with {embeddings.shape[1]} dimensions")
+    return embeddings, words
+
+
+def _load_numpy(filepath: str) -> Tuple[np.ndarray, List[str]]:
+    """Load embeddings from NumPy format."""
+    print(f"  Loading NumPy format...")
+    data = np.load(filepath, allow_pickle=True)
+    
+    embeddings = data['embeddings']
+    words = data['words'].tolist()
+    
+    if 'quantization_info' in data:
+        import json
+        quant_info = json.loads(str(data['quantization_info'][0]))
+        print(f"  Quantization metadata: {quant_info}")
+    
+    print(f"  ✓ Loaded {len(words)} vectors with {embeddings.shape[1]} dimensions")
+    return embeddings, words
+
+
+def _load_hdf5(filepath: str) -> Tuple[np.ndarray, List[str]]:
+    """Load embeddings from HDF5 format."""
+    try:
+        import h5py
+    except ImportError:
+        raise ImportError("h5py is required to load .h5 files. "
+                         "Install with: pip install h5py")
+    
+    print(f"  Loading HDF5 format...")
+    
+    with h5py.File(filepath, 'r') as f:
+        embeddings = f['embeddings'][:]
+        words = [w.decode('utf-8') if isinstance(w, bytes) else w 
+                for w in f['words'][:]]
         
+        if 'quantization_info' in f.attrs:
+            import json
+            quant_info = json.loads(f.attrs['quantization_info'])
+            print(f"  Quantization metadata: {quant_info}")
+    
+    print(f"  ✓ Loaded {len(words)} vectors with {embeddings.shape[1]} dimensions")
+    return embeddings, words
+
+
+def _load_word2vec_binary(filepath: str) -> Tuple[np.ndarray, List[str]]:
+    """Load embeddings from Word2Vec binary format."""
+    try:
+        from gensim.models import KeyedVectors
+        print(f"  Loading Word2Vec binary format...")
+        
+        # Try Word2Vec binary format first
+        try:
+            kv = KeyedVectors.load_word2vec_format(filepath, binary=True)
+            print(f"  ✓ Loaded {len(kv)} vectors with {kv.vector_size} dimensions")
+            return kv.vectors, list(kv.index_to_key)
+        except:
+            pass
+        
+        # Try GloVe format (text-like but in .bin extension)
+        try:
+            kv = KeyedVectors.load_word2vec_format(filepath, binary=False, no_header=True)
+            print(f"  ✓ Loaded as GloVe text format (in .bin file)")
+            return kv.vectors, list(kv.index_to_key)
+        except:
+            pass
+            
+    except ImportError:
+        raise ImportError("gensim is required to load .bin files. "
+                         "Install with: pip install gensim")
+    
+    raise ValueError(f"Could not load binary file: {filepath}")
+
+
+def _load_word2vec_text(filepath: str) -> Tuple[np.ndarray, List[str]]:
+    """Load embeddings from Word2Vec/GloVe text format."""
+    words = []
+    vectors = []
+    
+    try:
         # First try with header (Word2Vec format)
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             first_line = f.readline().strip().split()
@@ -408,6 +716,10 @@ def load_embeddings(filepath: str) -> Tuple[np.ndarray, List[str]]:
             
             # Read embeddings
             for line_num, line in enumerate(f, start=2 if has_header else 1):
+                # Skip comment lines
+                if line.startswith('#'):
+                    continue
+                    
                 parts = line.strip().split()
                 if len(parts) < 10:  # Skip malformed lines
                     continue
@@ -436,18 +748,6 @@ def load_embeddings(filepath: str) -> Tuple[np.ndarray, List[str]]:
             f"  2. Convert to text format first\n"
             f"  3. Make sure file is actually a valid embedding file"
         )
-
-
-
-def save_embeddings(filepath: str, embeddings: np.ndarray, words: List[str]):
-    """Save embeddings in Word2Vec format."""
-    n_words, n_dims = embeddings.shape
-    
-    with open(filepath, 'w', encoding='utf-8') as f:
-        f.write(f"{n_words} {n_dims}\n")
-        for word, vec in zip(words, embeddings):
-            vec_str = ' '.join([f"{v:.6f}" for v in vec])
-            f.write(f"{word} {vec_str}\n")
 
 
 # Example usage

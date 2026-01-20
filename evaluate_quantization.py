@@ -466,6 +466,69 @@ class QuantizationComparison:
                   f"Size: -{size_reduction:.0f}% ({results[method]['compression_ratio']:.1f}× compression)")
         
         print("="*80 + "\n")
+    
+    def save_quantized_embeddings(self, embeddings: np.ndarray, words: List[str], 
+                                  name: str, method: str = 'adaptive', 
+                                  output_dir: str = '.', format: str = None):
+        """
+        Save quantized embeddings to file.
+        
+        Args:
+            embeddings: Original embeddings
+            words: Word list
+            name: Base name for output file
+            method: 'uniform' or 'adaptive'
+            output_dir: Output directory
+            format: Output format - 'word2vec_text', 'word2vec_bin', 'pytorch', 
+                   'numpy', 'hdf5', or None for auto-detect from extension
+        """
+        from adaptive_quantization import save_embeddings
+        import os
+        
+        # Quantize
+        if method == 'uniform':
+            quantizer = UniformQuantizer(k=self.base_k)
+            quantized = quantizer.quantize(embeddings)
+            method_str = f'uniform_k{self.base_k}'
+        else:  # adaptive
+            quantizer = AdaptiveQuantizer(
+                base_k=self.base_k, 
+                use_lebesgue=self.use_lebesgue, 
+                verbose=False
+            )
+            quantized = quantizer.quantize(embeddings)
+            method_str = f'adaptive_k{self.base_k}'
+            if self.use_lebesgue:
+                method_str += '_lebesgue'
+        
+        # Determine extension based on format
+        if format is None:
+            ext = '.vec'  # default
+        else:
+            ext_map = {
+                'word2vec_text': '.vec',
+                'word2vec_bin': '.bin',
+                'pytorch': '.pt',
+                'numpy': '.npz',
+                'hdf5': '.h5'
+            }
+            ext = ext_map.get(format, '.vec')
+        
+        # Create output path
+        output_path = os.path.join(output_dir, f"{name}_{method_str}{ext}")
+        
+        # Prepare quantization info
+        quant_info = {
+            'base_k': self.base_k,
+            'method': method,
+            'use_lebesgue': self.use_lebesgue if method == 'adaptive' else None
+        }
+        
+        # Save
+        save_embeddings(quantized, words, output_path, format=format,
+                       quantization_info=quant_info)
+        
+        return output_path
 
 
 def main():
@@ -484,8 +547,17 @@ Examples:
   # Fine-grained quantization (base_k=100):
   python evaluate_quantization.py --base-k 100 en25k-skipg.vec
   
-  # Very fine quantization (base_k=200):
-  python evaluate_quantization.py --base-k 200 en25k-skipg.vec
+  # Save quantized embeddings (adaptive method, k=32):
+  python evaluate_quantization.py --base-k 32 --save-quantized embeddings.vec
+  
+  # Save both uniform and adaptive quantizations:
+  python evaluate_quantization.py --base-k 32 --save-quantized --save-method both embeddings.vec
+  
+  # Save in binary format (more compact):
+  python evaluate_quantization.py --base-k 32 --save-quantized --save-binary embeddings.vec
+  
+  # Save to specific directory:
+  python evaluate_quantization.py --base-k 32 --save-quantized --output-dir ./quantized embeddings.vec
   
   # Compare multiple files:
   python evaluate_quantization.py --base-k 100 file1.vec file2.vec
@@ -501,6 +573,18 @@ Examples:
     parser.add_argument('--use-lebesgue', action='store_true',
                        help='Use true Lebesgue/equi-depth quantization for skewed dimensions '
                             '(default: use percentile method)')
+    parser.add_argument('--save-quantized', action='store_true',
+                       help='Save quantized embeddings to file')
+    parser.add_argument('--save-method', choices=['uniform', 'adaptive', 'both'], 
+                       default='adaptive',
+                       help='Which quantization method to save (default: adaptive)')
+    parser.add_argument('--save-format', 
+                       choices=['vec', 'bin', 'pt', 'npz', 'h5'],
+                       default='vec',
+                       help='Output format: vec (Word2Vec text), bin (Word2Vec binary), '
+                            'pt (PyTorch), npz (NumPy), h5 (HDF5). Default: vec')
+    parser.add_argument('--output-dir', default='.',
+                       help='Output directory for saved embeddings (default: current directory)')
     
     args = parser.parse_args()
     
@@ -522,10 +606,40 @@ Examples:
         
         # Load
         embeddings, words = load_embeddings(embedding_file)
-        name = embedding_file.split('/')[-1].replace('.vec', '')
+        name = embedding_file.split('/')[-1].replace('.vec', '').replace('.bin', '')
         
         # Run comparison
         comparison.run_comparison(embeddings, words, name)
+        
+        # Save quantized embeddings if requested
+        if args.save_quantized:
+            print(f"\n{'='*80}")
+            print(f"SAVING QUANTIZED EMBEDDINGS")
+            print(f"{'='*80}\n")
+            
+            # Map short format names to full names
+            format_map = {
+                'vec': 'word2vec_text',
+                'bin': 'word2vec_bin',
+                'pt': 'pytorch',
+                'npz': 'numpy',
+                'h5': 'hdf5'
+            }
+            save_format = format_map.get(args.save_format, 'word2vec_text')
+            
+            if args.save_method in ['uniform', 'both']:
+                output_path = comparison.save_quantized_embeddings(
+                    embeddings, words, name, method='uniform',
+                    output_dir=args.output_dir, format=save_format
+                )
+                print(f"Uniform quantization saved to: {output_path}\n")
+            
+            if args.save_method in ['adaptive', 'both']:
+                output_path = comparison.save_quantized_embeddings(
+                    embeddings, words, name, method='adaptive',
+                    output_dir=args.output_dir, format=save_format
+                )
+                print(f"Adaptive quantization saved to: {output_path}\n")
     
     print("\n" + "="*80)
     print("OVERALL SUMMARY")
