@@ -14,12 +14,30 @@ All formats in this guide store values as **32-bit floats**, which means:
 - But formats still allocate 32 bits per value
 - Like writing single digits (0-9) using full 32-bit integers
 
+**⚠️ CRITICAL: Format Conversion Can DOUBLE File Size!**
+
+**Format overhead matters more than quantization:**
+
+```bash
+# WRONG: Binary → Text conversion DOUBLES size
+input.bin  (305 MB) → output.vec (610 MB)  # 2× larger!
+
+# RIGHT: Keep same format
+input.bin  (305 MB) → output.bin (305 MB)  # ✓ Same size
+input.vec  (610 MB) → output.vec (610 MB)  # ✓ Same size
+```
+
+**Format size comparison (GloVe-200, 400K words):**
+- `.bin`: Binary, 4 bytes/float → **~305 MB** (smallest)
+- `.pt/.npz/.h5`: Binary, compressed → **~305-320 MB** (similar)
+- `.vec/.txt`: ASCII text, 8+ bytes/float → **~610 MB** (2× larger!)
+
 **To actually reduce file size:**
 - Use external compression: `gzip file.vec` (~2-3× reduction)
 - Implement custom format storing k-bit indices (not yet available)
 - Use specialized vector databases (FAISS, etc.)
 
-**This guide focuses on format compatibility, not compression.**
+**This guide focuses on format compatibility and metadata support, not compression.**
 
 ---
 
@@ -31,11 +49,16 @@ The quantization toolkit supports five different formats for saving and loading 
 
 | Format | Extension | Dependencies | Metadata | Size | Speed | Best For |
 |--------|-----------|--------------|----------|------|-------|----------|
-| **Word2Vec Text** | `.vec`, `.txt` | None | Limited | ~100-500 MB | Medium | Compatibility, human-readable |
-| **Word2Vec Binary** | `.bin` | gensim | None | ~100-500 MB | Fast | Compatibility, compact |
-| **PyTorch** | `.pt`, `.pth` | torch | Full | ~100-500 MB | Fast | Research, deep learning |
-| **NumPy** | `.npz` | None | Full | ~100-500 MB | Fast | Scientific Python |
-| **HDF5** | `.h5`, `.hdf5` | h5py | Full | ~100-500 MB | Medium | Scientific data, large scale |
+| **Word2Vec Text** | `.vec`, `.txt` | None | Limited | **~610 MB** | Medium | Compatibility, human-readable |
+| **Word2Vec Binary** | `.bin` | gensim | None | **~305 MB** | Fast | Compatibility, compact |
+| **PyTorch** | `.pt`, `.pth` | torch | Full | **~305 MB** | Fast | Research, deep learning |
+| **NumPy** | `.npz` | None | Full | **~315 MB** | Fast | Scientific Python |
+| **HDF5** | `.h5`, `.hdf5` | h5py | Full | **~310 MB** | Medium | Scientific data, large scale |
+
+**Note:** Sizes shown for GloVe-200 (400K words × 200 dims). Text format (.vec) is **~2× larger** than binary formats due to ASCII encoding overhead.
+
+**⚠️ Format Conversion Warning:**
+Converting from `.bin` to `.vec` will **DOUBLE your file size** (305 MB → 610 MB), even with quantization! This is format overhead, not quantization overhead. Keep the same format to maintain file size.
 
 ---
 

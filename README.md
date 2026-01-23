@@ -53,20 +53,64 @@ This repository implements the quantization methods from our research paper demo
 - **BUT** standard formats don't support bit-level storage
 - File size stays the same unless using custom binary format
 
+**⚠️ WARNING: Format Conversion Can INCREASE File Size**
+
+Converting between formats affects file size independently of quantization:
+
+```bash
+# Binary → Text conversion DOUBLES file size!
+python convert_embeddings.py input.bin output.vec
+# 305 MB → 610 MB (text format overhead, NOT quantization)
+
+# Keep same format to maintain size
+python convert_embeddings.py input.bin output.bin
+# 305 MB → 305 MB ✓ (size unchanged)
+
+python convert_embeddings.py input.vec output.vec  
+# 610 MB → 610 MB ✓ (size unchanged)
+```
+
+**Format size comparison:**
+- `.bin` (binary): 4 bytes per float → ~305 MB for GloVe-200
+- `.vec` (text): 8+ bytes per float → ~610 MB for GloVe-200 (2× larger!)
+- `.pt/.npz/.h5`: Similar to binary (~300-320 MB)
+
+**Best practice:** Keep the same format for quantization to avoid format overhead.
+
 ### How to Achieve Actual File Size Reduction
 
 1. **External compression** (simplest):
    ```bash
-   gzip glove.quantized.vec  # ~2-3× reduction
+   # Keep same format, then compress
+   python convert_embeddings.py input.bin output.bin
+   gzip output.bin  # ~2-3× reduction → ~100-150 MB
+   
+   # Or for text format
+   python convert_embeddings.py input.vec output.vec
+   gzip output.vec  # ~2-3× reduction → ~200-300 MB
    ```
 
-2. **Custom binary format** (future enhancement):
+2. **Avoid format conversion overhead**:
+   ```bash
+   # WRONG: Binary → Text doubles size!
+   python convert_embeddings.py input.bin output.vec
+   # 305 MB → 610 MB (2× larger!)
+   
+   # RIGHT: Keep same format
+   python convert_embeddings.py input.bin output.bin
+   # 305 MB → 305 MB ✓
+   
+   python convert_embeddings.py input.vec output.vec
+   # 610 MB → 610 MB ✓
+   ```
+
+3. **Custom binary format** (future enhancement):
    - Store codebook (k centers × dimensions)
    - Store indices (log₂(k) bits per value)
    - Achieve true 6-8× compression
    - Not yet implemented
 
-3. **Specialized quantized formats**:
+4. **Specialized quantized formats**:
    - FAISS indices (for similarity search)
    - Custom formats designed for quantized embeddings
 

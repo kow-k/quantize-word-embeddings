@@ -147,6 +147,18 @@ Why? All formats store values as 32-bit floats, so a 305 MB file
 stays 305 MB after quantization (even though values are reduced 
 to k=32 levels).
 
+⚠️  CRITICAL: Format Conversion Can DOUBLE File Size!
+────────────────────────────────────────────────────────────────────
+Format overhead matters MORE than quantization:
+
+  input.bin (305 MB) → output.vec (610 MB)   # 2× LARGER (text format)
+  input.bin (305 MB) → output.bin (305 MB)   # ✓ Same size
+  input.vec (610 MB) → output.vec (610 MB)   # ✓ Same size
+
+RECOMMENDATION: Keep the same format as your input!
+  .bin → .bin (maintains ~305 MB)
+  .vec → .vec (maintains ~610 MB)
+
 For actual file size reduction:
   • Use: gzip output.vec (provides ~2-3× compression)
   • Future: Custom binary format (not yet implemented)
