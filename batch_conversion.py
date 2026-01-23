@@ -21,7 +21,7 @@ from adaptive_quantization import AdaptiveQuantizer, load_embeddings, save_embed
 
 
 def convert_file(input_path, output_dir, base_k=32, use_lebesgue=True, 
-                format='word2vec_text', suffix='_quantized'):
+                format='word2vec_text', suffix='_quantized', add_metadata=False):
     """
     Convert a single embedding file.
     
@@ -32,6 +32,7 @@ def convert_file(input_path, output_dir, base_k=32, use_lebesgue=True,
         use_lebesgue: Use adaptive Lebesgue quantization
         format: Output format ('word2vec_text', 'word2vec_bin', 'pytorch', 'numpy', 'hdf5')
         suffix: Suffix to add to output filename
+        add_metadata: Add quantization metadata (breaks gensim for .vec/.bin)
     
     Returns:
         Tuple of (input_size_mb, output_size_mb, compression_ratio)
@@ -77,7 +78,8 @@ def convert_file(input_path, output_dir, base_k=32, use_lebesgue=True,
         'use_lebesgue': use_lebesgue
     }
     save_embeddings(quantized, words, output_path, 
-                   format=format, quantization_info=quant_info)
+                   format=format, quantization_info=quant_info,
+                   add_metadata=add_metadata)
     
     # Calculate metrics
     output_size = os.path.getsize(output_path) / (1024**2)
@@ -131,6 +133,9 @@ Supported Formats:
                        choices=['vec', 'bin', 'pt', 'npz', 'h5'],
                        default='vec',
                        help='Output format (default: vec)')
+    parser.add_argument('--add-metadata', action='store_true',
+                       help='Add quantization metadata to output files. '
+                            'WARNING: For .vec/.bin formats, breaks gensim compatibility!')
     parser.add_argument('--no-lebesgue', action='store_true',
                        help='Disable Lebesgue quantization')
     parser.add_argument('--suffix', default='_quantized',
@@ -189,7 +194,8 @@ Supported Formats:
                 base_k=args.k,
                 use_lebesgue=not args.no_lebesgue,
                 format=output_format,
-                suffix=args.suffix
+                suffix=args.suffix,
+                add_metadata=args.add_metadata
             )
             total_input += input_size
             total_output += output_size

@@ -19,7 +19,7 @@ from adaptive_quantization import AdaptiveQuantizer, load_embeddings, save_embed
 
 
 def convert(input_path, output_path, base_k=32, use_lebesgue=True, 
-           format=None, verbose=True):
+           format=None, add_metadata=False, verbose=True):
     """
     Convert embeddings to quantized format.
     
@@ -30,6 +30,9 @@ def convert(input_path, output_path, base_k=32, use_lebesgue=True,
         use_lebesgue: Use adaptive Lebesgue quantization for skewed dimensions
         format: Force specific output format ('word2vec_text', 'word2vec_bin', 
                 'pytorch', 'numpy', 'hdf5'). If None, auto-detect from extension.
+        add_metadata: Add quantization metadata to output file. 
+                     For .vec/.bin: breaks gensim compatibility (use with caution!)
+                     For .pt/.npz/.h5: automatically enabled regardless of this flag
         verbose: Print progress information
     """
     if verbose:
@@ -81,7 +84,8 @@ def convert(input_path, output_path, base_k=32, use_lebesgue=True,
     }
     
     save_embeddings(quantized, words, output_path, 
-                   format=format, quantization_info=quant_info)
+                   format=format, quantization_info=quant_info,
+                   add_metadata=add_metadata)
     
     # Final summary
     if verbose:
@@ -175,6 +179,9 @@ Examples:
   # Without Lebesgue (uniform only):
   python convert_embeddings.py input.vec output.vec --no-lebesgue
   
+  # Add metadata to .vec file (WARNING: breaks gensim!):
+  python convert_embeddings.py input.vec output.vec --add-metadata
+  
   # Quiet mode:
   python convert_embeddings.py input.vec output.vec --quiet
 
@@ -203,6 +210,11 @@ Recommendations:
     parser.add_argument('--format', 
                        choices=['word2vec_text', 'word2vec_bin', 'pytorch', 'numpy', 'hdf5'],
                        help='Force specific output format (overrides extension auto-detection)')
+    parser.add_argument('--add-metadata', action='store_true',
+                       help='Add quantization metadata to output file. '
+                            'WARNING: For .vec/.bin formats, this breaks gensim compatibility! '
+                            'Only use if loading with our load_embeddings() function. '
+                            'Metadata is always added to .pt/.npz/.h5 formats.')
     parser.add_argument('--no-lebesgue', action='store_true',
                        help='Disable Lebesgue quantization for skewed dimensions')
     parser.add_argument('--quiet', action='store_true',
@@ -217,6 +229,7 @@ Recommendations:
             base_k=args.k,
             use_lebesgue=not args.no_lebesgue,
             format=args.format,
+            add_metadata=args.add_metadata,
             verbose=not args.quiet
         )
         return 0

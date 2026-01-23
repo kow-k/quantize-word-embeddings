@@ -469,7 +469,8 @@ class QuantizationComparison:
     
     def save_quantized_embeddings(self, embeddings: np.ndarray, words: List[str], 
                                   name: str, method: str = 'adaptive', 
-                                  output_dir: str = '.', format: str = None):
+                                  output_dir: str = '.', format: str = None,
+                                  add_metadata: bool = None):
         """
         Save quantized embeddings to file.
         
@@ -481,6 +482,7 @@ class QuantizationComparison:
             output_dir: Output directory
             format: Output format - 'word2vec_text', 'word2vec_bin', 'pytorch', 
                    'numpy', 'hdf5', or None for auto-detect from extension
+            add_metadata: Whether to add metadata. If None, smart default based on format.
         """
         from adaptive_quantization import save_embeddings
         import os
@@ -526,7 +528,7 @@ class QuantizationComparison:
         
         # Save
         save_embeddings(quantized, words, output_path, format=format,
-                       quantization_info=quant_info)
+                       quantization_info=quant_info, add_metadata=add_metadata)
         
         return output_path
 
@@ -593,6 +595,10 @@ Examples:
                        default='vec',
                        help='Output format: vec (Word2Vec text), bin (Word2Vec binary), '
                             'pt (PyTorch), npz (NumPy), h5 (HDF5). Default: vec')
+    parser.add_argument('--add-metadata', action='store_true',
+                       help='Add quantization metadata to output file. '
+                            'WARNING: For .vec/.bin formats, breaks gensim compatibility! '
+                            'Metadata always added to .pt/.npz/.h5 formats.')
     parser.add_argument('--output-dir', default='.',
                        help='Output directory for saved embeddings (default: current directory)')
     
@@ -640,14 +646,16 @@ Examples:
             if args.save_method in ['uniform', 'both']:
                 output_path = comparison.save_quantized_embeddings(
                     embeddings, words, name, method='uniform',
-                    output_dir=args.output_dir, format=save_format
+                    output_dir=args.output_dir, format=save_format,
+                    add_metadata=args.add_metadata
                 )
                 print(f"Uniform quantization saved to: {output_path}\n")
             
             if args.save_method in ['adaptive', 'both']:
                 output_path = comparison.save_quantized_embeddings(
                     embeddings, words, name, method='adaptive',
-                    output_dir=args.output_dir, format=save_format
+                    output_dir=args.output_dir, format=save_format,
+                    add_metadata=args.add_metadata
                 )
                 print(f"Adaptive quantization saved to: {output_path}\n")
     

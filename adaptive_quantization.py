@@ -344,7 +344,8 @@ class UniformQuantizer:
 
 
 def save_embeddings(embeddings: np.ndarray, words: List[str], filepath: str, 
-                   format: str = None, quantization_info: Dict = None):
+                   format: str = None, quantization_info: Dict = None,
+                   add_metadata: bool = None):
     """
     Save embeddings to file in various formats with automatic format detection.
     
@@ -355,6 +356,9 @@ def save_embeddings(embeddings: np.ndarray, words: List[str], filepath: str,
         format: Force specific format. Options: 'word2vec_text', 'word2vec_bin', 
                 'pytorch', 'numpy', 'hdf5'. If None, auto-detect from extension.
         quantization_info: Optional dict with quantization parameters to save as metadata
+        add_metadata: Whether to add metadata. If None, auto-decide based on format:
+                     - .vec/.bin: False by default (gensim compatibility)
+                     - .pt/.npz/.h5: True by default (native metadata support)
     
     Supported formats:
         .vec  → Word2Vec text format (human-readable, ~100-500 MB)
@@ -365,16 +369,20 @@ def save_embeddings(embeddings: np.ndarray, words: List[str], filepath: str,
     
     Examples:
         # Auto-detect format from extension
-        save_embeddings(quantized, words, 'output.vec')      # Word2Vec text
-        save_embeddings(quantized, words, 'output.bin')      # Word2Vec binary
-        save_embeddings(quantized, words, 'output.pt')       # PyTorch
-        save_embeddings(quantized, words, 'output.npz')      # NumPy
-        save_embeddings(quantized, words, 'output.h5')       # HDF5
+        save_embeddings(quantized, words, 'output.vec')      # Word2Vec text (no metadata)
+        save_embeddings(quantized, words, 'output.bin')      # Word2Vec binary (no metadata)
+        save_embeddings(quantized, words, 'output.pt')       # PyTorch (with metadata)
+        save_embeddings(quantized, words, 'output.npz')      # NumPy (with metadata)
+        save_embeddings(quantized, words, 'output.h5')       # HDF5 (with metadata)
+        
+        # Force metadata in .vec (breaks gensim compatibility!)
+        save_embeddings(quantized, words, 'output.vec', add_metadata=True,
+                       quantization_info={'base_k': 32})
         
         # Force specific format
         save_embeddings(quantized, words, 'output.txt', format='word2vec_text')
         
-        # With metadata
+        # With metadata (automatically used for .pt/.npz/.h5)
         save_embeddings(quantized, words, 'output.pt',
                        quantization_info={'base_k': 32, 'method': 'adaptive'})
     """
@@ -397,12 +405,30 @@ def save_embeddings(embeddings: np.ndarray, words: List[str], filepath: str,
         }
         format = format_map.get(ext, 'word2vec_text')
     
+    # Auto-decide metadata policy if not specified
+    if add_metadata is None:
+        # Metadata natively supported and enabled by default
+        if format in ['pytorch', 'numpy', 'hdf5']:
+            add_metadata = True
+        # Metadata breaks compatibility, disabled by default
+        else:  # word2vec_text, word2vec_bin
+            add_metadata = False
+    
+    # Warn if adding metadata to incompatible formats
+    if add_metadata and format in ['word2vec_text', 'word2vec_bin'] and quantization_info:
+        print("⚠️  WARNING: Adding metadata to .vec/.bin format")
+        print("   This will break compatibility with gensim's KeyedVectors.load_word2vec_format()")
+        print("   Use only if loading with custom load_embeddings() function")
+        print("   Consider using .pt, .npz, or .h5 for metadata support")
+    
     # Save based on format
     if format == 'word2vec_text':
-        _save_word2vec_text(embeddings, words, filepath, quantization_info)
+        _save_word2vec_text(embeddings, words, filepath, 
+                           quantization_info if add_metadata else None)
     
     elif format == 'word2vec_bin':
-        _save_word2vec_binary(embeddings, words, filepath, quantization_info)
+        _save_word2vec_binary(embeddings, words, filepath, 
+                             quantization_info if add_metadata else None)
     
     elif format == 'pytorch':
         _save_pytorch(embeddings, words, filepath, quantization_info)
@@ -431,8 +457,12 @@ def _save_word2vec_text(embeddings: np.ndarray, words: List[str],
         f.write(f"{vocab_size} {n_dims}\n")
         
         # Write quantization info as comment if provided
+        # WARNING: This breaks gensim compatibility!
         if quantization_info:
             f.write(f"# Quantization: {quantization_info}\n")
+            print(f"  ⚠️  Warning: Metadata comment added to .vec file")
+            print(f"     This breaks gensim's KeyedVectors.load_word2vec_format()")
+            print(f"     Use our load_embeddings() or remove comment line manually")
         
         # Write word vectors
         for word, vector in zip(words, embeddings):
