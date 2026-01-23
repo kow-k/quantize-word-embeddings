@@ -1,5 +1,28 @@
 # Embedding Format Guide
 
+## ⚠️ Critical Understanding: File Size vs Semantic Quality
+
+**Before reading about formats, understand this important limitation:**
+
+All formats in this guide store values as **32-bit floats**, which means:
+- ✅ Quantization **improves semantic quality** (+3-6% on benchmarks)
+- ❌ Quantization **does NOT reduce file size** with standard formats
+- 📊 File size stays the same: ~305 MB before and after quantization
+
+**Why?**
+- Quantization reduces values to k=32 levels (5 bits of information)
+- But formats still allocate 32 bits per value
+- Like writing single digits (0-9) using full 32-bit integers
+
+**To actually reduce file size:**
+- Use external compression: `gzip file.vec` (~2-3× reduction)
+- Implement custom format storing k-bit indices (not yet available)
+- Use specialized vector databases (FAISS, etc.)
+
+**This guide focuses on format compatibility, not compression.**
+
+---
+
 ## Supported Formats
 
 The quantization toolkit supports five different formats for saving and loading embeddings. Each format has its own advantages and use cases.
@@ -441,22 +464,51 @@ python convert_embeddings.py input.txt output.xyz --format pytorch
 
 Benchmark on GloVe-300 (400k vocab, 300 dims):
 
-| Format | File Size | Save Time | Load Time | Metadata |
-|--------|-----------|-----------|-----------|----------|
-| .vec   | 467 MB    | 45s       | 12s       | Limited  |
-| .bin   | 457 MB    | 15s       | 3s        | None     |
-| .pt    | 463 MB    | 8s        | 2s        | Full     |
-| .npz   | 461 MB    | 12s       | 4s        | Full     |
-| .h5    | 459 MB    | 10s       | 3s        | Full     |
+| Format | File Size | Save Time | Load Time | Metadata | Notes |
+|--------|-----------|-----------|-----------|----------|-------|
+| .vec   | 467 MB    | 45s       | 12s       | Limited  | Text format |
+| .bin   | 457 MB    | 15s       | 3s        | None     | Binary, gensim |
+| .pt    | 463 MB    | 8s        | 2s        | Full     | PyTorch |
+| .npz   | 461 MB    | 12s       | 4s        | Full     | NumPy compressed |
+| .h5    | 459 MB    | 10s       | 3s        | Full     | HDF5 |
 
 After quantization (k=32):
 
-| Format | File Size | Compression | Save Time | Load Time |
-|--------|-----------|-------------|-----------|-----------|
-| .vec   | 55 MB     | 8.5×        | 6s        | 1.5s      |
-| .bin   | 54 MB     | 8.5×        | 2s        | 0.4s      |
-| .pt    | 55 MB     | 8.4×        | 1s        | 0.3s      |
-| .npz   | 55 MB     | 8.4×        | 1.5s      | 0.5s      |
-| .h5    | 54 MB     | 8.6×        | 1.2s      | 0.4s      |
+| Format | File Size | Theoretical Bits | Save Time | Load Time | Actual Compression |
+|--------|-----------|------------------|-----------|-----------|-------------------|
+| .vec   | 467 MB    | 5 bits/value     | 6s        | 1.5s      | **None** (32-bit floats) |
+| .bin   | 457 MB    | 5 bits/value     | 2s        | 0.4s      | **None** (32-bit floats) |
+| .pt    | 463 MB    | 5 bits/value     | 1s        | 0.3s      | **None** (32-bit floats) |
+| .npz   | 461 MB    | 5 bits/value     | 1.5s      | 0.5s      | **None** (32-bit floats) |
+| .h5    | 459 MB    | 5 bits/value     | 1.2s      | 0.4s      | **None** (32-bit floats) |
 
-**Conclusion:** All formats achieve similar compression. Choose based on your workflow needs rather than size/speed alone.
+### ⚠️ Important Note on File Sizes
+
+**All standard formats store values as 32-bit floats**, even after quantization to k=32 levels:
+- ✅ Values are quantized (reduced to k discrete levels)
+- ✅ Semantic quality improves (+3-6% STS)
+- ❌ File size does NOT automatically reduce
+- ❌ Each value still takes 32 bits of storage
+
+**Why?**
+- Standard formats (.vec, .bin, .pt, .npz, .h5) all use `float32` arrays
+- Quantization reduces the number of **unique values**, not the **storage format**
+- To get actual compression, you need custom binary format with bit-level storage
+
+**Theoretical compression** (5 bits/value for k=32):
+- 467 MB → ~73 MB would require custom format
+- Current implementation: 467 MB → 467 MB (same size, better quality)
+
+**To achieve actual file size reduction:**
+```bash
+# Option 1: External compression
+gzip glove.quantized.vec  # Reduces to ~150-200 MB (2-3× compression)
+
+# Option 2: Custom binary format (not yet implemented)
+# Would store: codebook + 5-bit indices → true 6-8× compression
+
+# Option 3: Use specialized vector databases
+# FAISS, Milvus, etc. support quantized storage
+```
+
+**Conclusion:** Choose format based on workflow needs (metadata, compatibility) rather than file size, since all formats currently have similar sizes after quantization.

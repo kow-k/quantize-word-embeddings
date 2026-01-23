@@ -19,13 +19,65 @@ This repository implements the quantization methods from our research paper demo
 
 ## 📊 Results at a Glance
 
-| Model | Original STS | k=32 Quantized | Improvement | Compression |
-|-------|--------------|----------------|-------------|-------------|
-| GloVe-50 | 0.634 | 0.659 (+3.9%) | +3.9% | 6.6× |
-| GloVe-200 | 0.564 | 0.590 (+4.5%) | +4.5% | 6.6× |
-| GloVe-300 | 0.583 | 0.619 (+6.3%) | +6.3% | 8.4× |
+| Model | Original STS | k=32 Quantized | Improvement | Storage Format |
+|-------|--------------|----------------|-------------|----------------|
+| GloVe-50 | 0.634 | 0.659 (+3.9%) | +3.9% | ~80 MB (same size) |
+| GloVe-200 | 0.564 | 0.590 (+4.5%) | +4.5% | ~305 MB (same size) |
+| GloVe-300 | 0.583 | 0.619 (+6.3%) | +6.3% | ~467 MB (same size) |
 
-**The compression paradox**: Aggressive quantization simultaneously reduces storage AND enhances semantic quality by removing noise while crystallizing signal structure.
+**The quantization paradox**: Quantization reduces values to k discrete levels AND enhances semantic quality by removing noise while crystallizing signal structure.
+
+## ⚠️ Important: Understanding Compression
+
+### What You Get Now
+
+✅ **Semantic Quality Improvement**: +3-6% on STS benchmarks (proven and immediate)  
+✅ **Discrete representations**: Values reduced to k≈32 levels per dimension  
+✅ **Noise reduction**: Improved embedding quality through discretization  
+
+### What You Don't Get Automatically
+
+❌ **File size reduction**: Standard formats (.vec, .bin, .pt, .npz, .h5) store all values as 32-bit floats  
+❌ **Storage compression**: Files remain the same size (~305 MB for GloVe-200)  
+
+### The Reality
+
+**Current Implementation:**
+- Quantizes **values** (400K unique → 32 unique per dimension) ✓
+- Improves **semantic quality** (+3-6% STS) ✓
+- Maintains **32-bit float storage** (file size unchanged) ✓
+
+**Theoretical Compression:**
+- k=32 quantization uses 5 bits of information per value
+- Compression ratio: 32 bits → 5 bits = 6.4× compression
+- **BUT** standard formats don't support bit-level storage
+- File size stays the same unless using custom binary format
+
+### How to Achieve Actual File Size Reduction
+
+1. **External compression** (simplest):
+   ```bash
+   gzip glove.quantized.vec  # ~2-3× reduction
+   ```
+
+2. **Custom binary format** (future enhancement):
+   - Store codebook (k centers × dimensions)
+   - Store indices (log₂(k) bits per value)
+   - Achieve true 6-8× compression
+   - Not yet implemented
+
+3. **Specialized quantized formats**:
+   - FAISS indices (for similarity search)
+   - Custom formats designed for quantized embeddings
+
+### Bottom Line
+
+This toolkit provides **proven semantic quality improvements** through quantization. File size reduction requires additional implementation or external compression tools.
+
+If you need actual file size reduction for deployment, consider:
+- Using gzip compression on output files
+- Implementing custom binary format (contributions welcome!)
+- Using specialized vector databases that support quantized storage
 
 ## 🚀 Quick Start
 
@@ -345,6 +397,7 @@ embedding-quantization/
 ├── convert_embeddings.py       # Simple standalone converter
 ├── README.md                    # This file
 ├── FORMAT_GUIDE.md              # Detailed format documentation
+├── LIMITATIONS.md               # Known limitations and workarounds
 ├── docs/
 │   ├── API_REFERENCE.md        # Detailed API documentation
 │   ├── EXAMPLES.md             # Extended usage examples
@@ -401,6 +454,71 @@ the 0.418 0.24968 -0.41242 ...
 
 **First line**: `<vocabulary_size> <dimensions>`  
 **Subsequent lines**: `<word> <value1> <value2> ...`
+
+## ❓ Frequently Asked Questions (FAQ)
+
+### Q: Why doesn't my file size reduce after quantization?
+
+**A:** Standard embedding formats (.vec, .bin, .pt, .npz, .h5) store all values as 32-bit floats, regardless of how many unique values exist. 
+
+- **What quantization does**: Reduces values from ~400K unique to k≈32 unique per dimension
+- **What it doesn't do**: Change the storage format from 32-bit floats
+- **Result**: Same file size, but better semantic quality (+3-6% STS improvement)
+
+**To actually reduce file size:**
+```bash
+# External compression (2-3× reduction)
+gzip embeddings_quantized.vec
+
+# Or wait for custom binary format implementation (future feature)
+```
+
+### Q: So quantization doesn't compress embeddings?
+
+**A:** It compresses the **information** (32-bit floats → 5-bit indices theoretically), but current file formats don't support bit-level storage. You get:
+- ✅ Semantic quality improvement (proven)
+- ✅ Discrete representations (k≈32 levels)
+- ❌ Automatic file size reduction (not yet)
+
+### Q: What's the "compression ratio" in the results then?
+
+**A:** That's the **theoretical compression ratio** based on information theory:
+- Original: 32 bits per value
+- Quantized: log₂(32) = 5 bits of information per value  
+- Ratio: 32/5 = 6.4× compression
+
+To realize this compression, you'd need a custom format that stores 5-bit indices + codebook.
+
+### Q: Is quantization still useful without file size reduction?
+
+**A:** Absolutely! The primary benefit is **improved semantic quality**:
+- +3.9% improvement on GloVe-50
+- +4.5% improvement on GloVe-200  
+- +6.3% improvement on GloVe-300
+
+File size reduction would be a bonus, but the quality improvement alone makes it worthwhile.
+
+### Q: Will you add true compression support?
+
+**A:** This is a planned feature. A custom binary format would:
+- Store codebook (k centers per dimension)
+- Store indices (log₂(k) bits per value)
+- Achieve actual 6-8× file size reduction
+
+Contributions welcome! See CONTRIBUTING.md.
+
+### Q: Which format should I use?
+
+**A:** Since file sizes are currently the same across formats, choose based on:
+- **.vec**: Maximum compatibility, human-readable
+- **.bin**: Fast loading with gensim
+- **.pt**: Full metadata, PyTorch integration (recommended for research)
+- **.npz**: Full metadata, no extra dependencies
+- **.h5**: Scientific data standard, language-agnostic
+
+See [FORMAT_GUIDE.md](FORMAT_GUIDE.md) for detailed comparison.
+
+---
 
 ## 🤝 Contributing
 

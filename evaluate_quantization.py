@@ -540,27 +540,37 @@ def main():
         description='Evaluate quantization strategies for word embeddings',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+⚠️  IMPORTANT: Quantization improves QUALITY, not file size
+────────────────────────────────────────────────────────────────────
+Expect +3-6% improvement on STS/SICK benchmarks, but file size 
+remains the same (~305 MB stays ~305 MB) with standard formats.
+For file compression, use external tools: gzip output.vec
+────────────────────────────────────────────────────────────────────
+
 Examples:
-  # Default (base_k=20, coarse quantization):
+  # Default evaluation (base_k=20):
   python evaluate_quantization.py en25k-skipg.vec
   
-  # Fine-grained quantization (base_k=100):
-  python evaluate_quantization.py --base-k 100 en25k-skipg.vec
+  # Recommended: k=32 quantization
+  python evaluate_quantization.py --base-k 32 embeddings.vec
   
-  # Save quantized embeddings (adaptive method, k=32):
+  # Save quantized embeddings (adaptive method):
   python evaluate_quantization.py --base-k 32 --save-quantized embeddings.vec
   
-  # Save both uniform and adaptive quantizations:
+  # Save both uniform and adaptive:
   python evaluate_quantization.py --base-k 32 --save-quantized --save-method both embeddings.vec
   
-  # Save in binary format (more compact):
-  python evaluate_quantization.py --base-k 32 --save-quantized --save-binary embeddings.vec
+  # Save in PyTorch format (with metadata):
+  python evaluate_quantization.py --base-k 32 --save-quantized --save-format pt embeddings.vec
+  
+  # Save in NumPy format:
+  python evaluate_quantization.py --base-k 32 --save-quantized --save-format npz embeddings.vec
   
   # Save to specific directory:
   python evaluate_quantization.py --base-k 32 --save-quantized --output-dir ./quantized embeddings.vec
   
   # Compare multiple files:
-  python evaluate_quantization.py --base-k 100 file1.vec file2.vec
+  python evaluate_quantization.py --base-k 32 file1.vec file2.vec
         """
     )
     
