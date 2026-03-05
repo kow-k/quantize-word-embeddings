@@ -606,6 +606,10 @@ def load_embeddings(filepath: str) -> Tuple[np.ndarray, List[str]]:
     
     ext = os.path.splitext(filepath)[1].lower()
     
+    # Handle gzip-compressed files (.gz) — peek at inner extension
+    if ext == '.gz':
+        return _load_gzip(filepath)
+    
     # PyTorch format
     if ext in ['.pt', '.pth']:
         return _load_pytorch(filepath)
@@ -627,6 +631,87 @@ def load_embeddings(filepath: str) -> Tuple[np.ndarray, List[str]]:
         return _load_word2vec_text(filepath)
 
 
+
+def _load_gzip(filepath: str) -> Tuple[np.ndarray, List[str]]:
+    """
+    Load gzip-compressed embedding files (.gz).
+
+    Handles:
+      - Word2Vec binary gz (e.g. word2vec-google-news-300.gz) via gensim
+      - Word2Vec/GloVe text gz as fallback
+    """
+    import os
+    import gzip
+
+    # Try gensim first (handles both binary and text gz natively)
+    try:
+        from gensim.models import KeyedVectors
+
+        # Binary gz (most common — Google News, etc.)
+        try:
+            print(f"  Loading gzip Word2Vec binary format...")
+            kv = KeyedVectors.load_word2vec_format(filepath, binary=True)
+            print(f"  \u2713 Loaded {len(kv)} vectors with {kv.vector_size} dimensions")
+            return kv.vectors.copy(), list(kv.index_to_key)
+        except Exception:
+            pass
+
+        # Text gz with header
+        try:
+            print(f"  Loading gzip text format (with header)...")
+            kv = KeyedVectors.load_word2vec_format(filepath, binary=False)
+            print(f"  \u2713 Loaded {len(kv)} vectors with {kv.vector_size} dimensions")
+            return kv.vectors.copy(), list(kv.index_to_key)
+        except Exception:
+            pass
+
+        # GloVe text gz (no header)
+        try:
+            print(f"  Loading gzip GloVe text format (no header)...")
+            kv = KeyedVectors.load_word2vec_format(filepath, binary=False, no_header=True)
+            print(f"  \u2713 Loaded {len(kv)} vectors with {kv.vector_size} dimensions")
+            return kv.vectors.copy(), list(kv.index_to_key)
+        except Exception:
+            pass
+
+    except ImportError:
+        pass  # gensim not available, fall back to manual parsing
+
+    # Manual fallback: decompress and parse as text
+    print(f"  Loading gzip text format (manual)...")
+    words = []
+    vectors = []
+    with gzip.open(filepath, 'rt', encoding='utf-8', errors='ignore') as f:
+        first_line = f.readline().strip().split()
+        has_header = (len(first_line) == 2 and all(p.isdigit() for p in first_line))
+        if not has_header:
+            parts = first_line
+            if len(parts) >= 2:
+                try:
+                    words.append(parts[0])
+                    vectors.append([float(x) for x in parts[1:]])
+                except ValueError:
+                    pass
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) < 2:
+                continue
+            try:
+                words.append(parts[0])
+                vectors.append([float(x) for x in parts[1:]])
+            except ValueError:
+                continue
+
+    if not vectors:
+        raise ValueError(
+            f"Could not load .gz file: {filepath}\n"
+            "  Install gensim for best support: pip install gensim\n"
+            "  Supported: Word2Vec binary gz, Word2Vec/GloVe text gz"
+        )
+
+    print(f"  \u2713 Loaded {len(vectors)} vectors with {len(vectors[0])} dimensions")
+    return np.array(vectors, dtype=np.float32), words
+
 def _load_pytorch(filepath: str) -> Tuple[np.ndarray, List[str]]:
     """Load embeddings from PyTorch format."""
     try:
@@ -636,10 +721,33 @@ def _load_pytorch(filepath: str) -> Tuple[np.ndarray, List[str]]:
                          "Install with: pip install torch")
     
     print(f"  Loading PyTorch format...")
-    data = torch.load(filepath, map_location='cpu')
+    data = torch.load(filepath, map_location='cpu', weights_only=False)
     
-    embeddings = data['embeddings'].numpy()
-    words = data['words']
+    # Support multiple embedding key conventions:
+    # - 'embeddings': our save_embeddings() format
+    # - 'W_in': train_word2vec.py Semi-AE/CBOW trainer format
+    # - 'weight': some other PyTorch embedding layers
+    emb_tensor = None
+    for key in ('embeddings', 'W_in', 'weight'):
+        if key in data and hasattr(data[key], 'numpy'):
+            emb_tensor = data[key]
+            if key != 'embeddings':
+                print(f"  Using PyTorch key '{key}' for embedding matrix")
+            break
+    if emb_tensor is None:
+        available = [k for k, v in data.items() if hasattr(v, 'shape')]
+        raise KeyError(
+            f"No recognized embedding key found in .pt file.\n"
+            f"  Available tensor keys: {available}\n"
+            f"  Expected one of: 'embeddings', 'W_in', 'weight'"
+        )
+    embeddings = emb_tensor.numpy()
+    
+    words = data.get('words', None)
+    if words is None:
+        # Generate placeholder word list if no vocabulary is stored
+        print(f"  Warning: no 'words' key found; using index strings as vocabulary")
+        words = [str(i) for i in range(embeddings.shape[0])]
     
     if 'quantization_info' in data:
         print(f"  Quantization metadata: {data['quantization_info']}")
@@ -666,27 +774,118 @@ def _load_numpy(filepath: str) -> Tuple[np.ndarray, List[str]]:
 
 
 def _load_hdf5(filepath: str) -> Tuple[np.ndarray, List[str]]:
-    """Load embeddings from HDF5 format."""
+    """
+    Load embeddings from HDF5 format.
+
+    Handles multiple HDF5 embedding conventions:
+      - Our own format: keys 'embeddings' + 'words'
+      - AllenNLP ELMo precomputed: numeric string sentence keys ('0', '1', ...)
+        each with shape (3, n_tokens, 1024) — we take layer 0 and concatenate
+      - AllenNLP ELMo weight file (model.hdf5): weight tensors only, not token
+        embeddings. Raises a clear error rather than crashing with a KeyError.
+      - Generic: first 2-D dataset found with a matching 'words' or index list
+    """
     try:
         import h5py
     except ImportError:
         raise ImportError("h5py is required to load .h5 files. "
                          "Install with: pip install h5py")
-    
+
     print(f"  Loading HDF5 format...")
-    
+
     with h5py.File(filepath, 'r') as f:
-        embeddings = f['embeddings'][:]
-        words = [w.decode('utf-8') if isinstance(w, bytes) else w 
-                for w in f['words'][:]]
-        
-        if 'quantization_info' in f.attrs:
-            import json
-            quant_info = json.loads(f.attrs['quantization_info'])
-            print(f"  Quantization metadata: {quant_info}")
-    
-    print(f"  ✓ Loaded {len(words)} vectors with {embeddings.shape[1]} dimensions")
-    return embeddings, words
+        top_keys = list(f.keys())
+        print(f"  HDF5 top-level keys: {top_keys[:20]}"
+              + (" ..." if len(top_keys) > 20 else ""))
+
+        # ── Case 1: our own save format ────────────────────────────────────
+        if 'embeddings' in f and 'words' in f:
+            embeddings = f['embeddings'][:]
+            words = [w.decode('utf-8') if isinstance(w, bytes) else w
+                     for w in f['words'][:]]
+            if 'quantization_info' in f.attrs:
+                import json
+                quant_info = json.loads(f.attrs['quantization_info'])
+                print(f"  Quantization metadata: {quant_info}")
+            print(f"  ✓ Loaded {len(words)} vectors with {embeddings.shape[1]} dimensions")
+            return embeddings, words
+
+        # ── Case 2: AllenNLP ELMo precomputed sentence embeddings ──────────
+        # Keys are numeric strings ('0', '1', ...), each dataset has shape
+        # (n_layers, n_tokens, dim). We take layer 0 across all sentences.
+        numeric_keys = sorted(
+            [k for k in top_keys if k.isdigit()],
+            key=lambda x: int(x)
+        )
+        if numeric_keys:
+            print(f"  Detected AllenNLP ELMo precomputed format "
+                  f"({len(numeric_keys)} sentences)")
+            print(f"  Note: extracting per-token vectors from layer 0 "
+                  f"(mean-pooling per sentence)")
+            sentence_vecs = []
+            pseudo_words = []
+            for key in numeric_keys:
+                data = f[key][:]          # shape: (n_layers, n_tokens, dim)
+                if data.ndim == 3:
+                    layer0 = data[0]      # (n_tokens, dim)
+                elif data.ndim == 2:
+                    layer0 = data         # already (n_tokens, dim)
+                else:
+                    continue
+                # Mean-pool tokens → one vector per sentence
+                sentence_vecs.append(layer0.mean(axis=0))
+                pseudo_words.append(f"sentence_{key}")
+            if sentence_vecs:
+                embeddings = np.array(sentence_vecs, dtype=np.float32)
+                print(f"  ✓ Loaded {len(pseudo_words)} sentence vectors "
+                      f"with {embeddings.shape[1]} dimensions")
+                return embeddings, pseudo_words
+
+        # ── Case 3: ELMo weight file (model.hdf5) — not token embeddings ──
+        # These files contain CNN/RNN weight tensors, not a word embedding matrix.
+        weight_indicators = {'CNN', 'RNN', 'RNN_0', 'RNN_1',
+                             'softmax', 'char_embed'}
+        if weight_indicators & set(top_keys):
+            raise ValueError(
+                f"This appears to be an ELMo *weight* file (model.hdf5), "
+                f"not a precomputed token embedding file.\n"
+                f"  Found keys: {top_keys}\n"
+                f"  To use ELMo embeddings, you need to:\n"
+                f"    1. Run the ELMo model over your corpus to get precomputed\n"
+                f"       embeddings (allennlp elmo ... --output-file emb.hdf5)\n"
+                f"    2. Then pass that output file to this script."
+            )
+
+        # ── Case 4: generic HDF5 — find first 2-D float dataset ───────────
+        def _find_2d_datasets(group, prefix=''):
+            found = []
+            for name, item in group.items():
+                path = f"{prefix}/{name}" if prefix else name
+                if isinstance(item, h5py.Dataset) and item.ndim == 2:
+                    found.append((path, item.shape))
+                elif isinstance(item, h5py.Group):
+                    found.extend(_find_2d_datasets(item, path))
+            return found
+
+        candidates = _find_2d_datasets(f)
+        if candidates:
+            path, shape = candidates[0]
+            print(f"  Using first 2-D dataset found: '{path}' {shape}")
+            embeddings = f[path][:]
+            words = [str(i) for i in range(embeddings.shape[0])]
+            print(f"  ✓ Loaded {len(words)} vectors with {embeddings.shape[1]} dimensions")
+            print(f"  Note: no vocabulary found; using index strings as word labels")
+            return embeddings, words
+
+        # ── Give up with a helpful message ─────────────────────────────────
+        raise ValueError(
+            f"Cannot extract embeddings from HDF5 file.\n"
+            f"  Top-level keys: {top_keys}\n"
+            f"  Expected one of:\n"
+            f"    • 'embeddings' + 'words' (our format)\n"
+            f"    • Numeric keys '0','1',... (AllenNLP ELMo precomputed)\n"
+            f"    • Any 2-D float dataset (generic fallback)"
+        )
 
 
 def _load_word2vec_binary(filepath: str) -> Tuple[np.ndarray, List[str]]:
