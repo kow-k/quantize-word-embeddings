@@ -41,3 +41,4 @@ extra/
 !LICENSE
 !requirements.txt
 !requirements-dev.txt
+*.zip
