@@ -183,6 +183,11 @@ def embed_words_elmo(words: List[str],
     import os as _os
     if "TF_USE_LEGACY_KERAS" not in _os.environ:
         _os.environ["TF_USE_LEGACY_KERAS"] = "1"
+    # Suppress TensorFlow C++ INFO/WARNING logs (NUMA node, Metal device, MLIR, etc.)
+    # Must be set before TensorFlow is imported.
+    #   0 = all logs, 1 = filter INFO, 2 = filter INFO+WARNING, 3 = filter all but ERROR
+    if "TF_CPP_MIN_LOG_LEVEL" not in _os.environ:
+        _os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
     try:
         from simple_elmo import ElmoModel
@@ -193,20 +198,37 @@ def embed_words_elmo(words: List[str],
             "  Also required for TF >= 2.16: pip install tf_keras"
         )
 
+    # Suppress Python-side TensorFlow logging (simple_elmo's INFO batch messages etc.)
+    import logging
+    import tensorflow as tf
+    tf.get_logger().setLevel(logging.ERROR)
+    logging.getLogger("simple_elmo").setLevel(logging.ERROR)
+
     print(f"  Loading ELMo model from: {elmo_dir}")
     model = ElmoModel()
     model.load(str(elmo_dir))
     print(f"  Model loaded. Embedding {len(words):,} words "
           f"in batches of {batch_size}...")
 
-    # Determine which layer indices to use
+    # Map --layer argument to simple_elmo's layers= parameter.
+    #
+    # simple_elmo.get_elmo_vectors() actual return shapes:
+    #   layers="average"  →  (batch, seq_len, 1024)   all 3 layers averaged
+    #   layers="top"      →  (batch, seq_len, 1024)   layer 2 (top LSTM) only
+    #   layers="all"      →  (batch, seq_len, 3072)   layers 0/1/2 concatenated
+    #                        slice [0:1024] / [1024:2048] / [2048:3072] to get individual layers
     if layer == "all":
-        layer_indices = [0, 1, 2]
+        elmo_layers_arg = "average"
+    elif layer == "2":
+        elmo_layers_arg = "top"
     else:
+        # layers 0 or 1 — must request "all" then slice
+        elmo_layers_arg = "all"
+
+    layer_slice = None  # only used when elmo_layers_arg == "all"
+    if elmo_layers_arg == "all":
         idx = int(layer)
-        if idx not in (0, 1, 2):
-            raise ValueError(f"Layer must be 0, 1, 2, or 'all'. Got: {layer}")
-        layer_indices = [idx]
+        layer_slice = slice(idx * 1024, (idx + 1) * 1024)
 
     all_vecs: List[np.ndarray] = []
     n_batches = (len(words) + batch_size - 1) // batch_size
@@ -217,18 +239,16 @@ def embed_words_elmo(words: List[str],
         # simple_elmo expects a list of sentences; each sentence is a list of tokens
         sentences = [[w] for w in batch_words]
 
-        # get_elmo_vectors returns shape (n_sentences, max_tokens, 3, dim)
-        # For single-word sentences max_tokens = 1
-        vectors = model.get_elmo_vectors(sentences, warmup=False)
+        # Returns 3D array; shape depends on layers= argument (see above)
+        vectors = model.get_elmo_vectors(sentences, warmup=False,
+                                         layers=elmo_layers_arg)
 
         for i in range(len(batch_words)):
-            # vectors[i] shape: (1, 3, 1024)  →  token_layers: (3, 1024)
-            token_layers = vectors[i, 0, :, :]
-            if len(layer_indices) == 1:
-                vec = token_layers[layer_indices[0]]
-            else:
-                vec = token_layers[layer_indices, :].mean(axis=0)
-            all_vecs.append(vec.astype(np.float32))
+            # vectors[i, 0, :] → the single token's vector for sentence i
+            token_vec = vectors[i, 0, :]
+            if layer_slice is not None:
+                token_vec = token_vec[layer_slice]
+            all_vecs.append(token_vec.astype(np.float32))
 
         done = min((batch_num + 1) * batch_size, len(words))
         print(f"    {done:,}/{len(words):,} words embedded...", end="\r")
